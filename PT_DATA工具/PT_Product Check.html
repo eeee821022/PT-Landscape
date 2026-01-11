@@ -591,6 +591,72 @@ Output ONLY valid JSON. Start with '['.`;
                 return [...EXPORT_COLS_FIXED, ...dateColumns];
             };
 
+            // --- UPDATE SHEET (GAS Write-Back) ---
+            const handleUpdateSheet = async () => {
+                const gsUrl = GS_DATA_URL;
+                // Fix: Prompt for password if not stored
+                let password = localStorage.getItem('PT_GAS_PASSWORD');
+                if (!password) {
+                    password = prompt("Please enter GS Admin Password (557...):");
+                    if (!password) return;
+                    localStorage.setItem('PT_GAS_PASSWORD', password);
+                }
+
+                if (!gsUrl) return showToast("No GAS URL configured", "error");
+                if (!currentSheet) return showToast("No sheet selected", "error");
+
+                setIsProcessing(true);
+                showToast(`Preparing to update ${currentSheet}...`, "info");
+
+                try {
+                    // 1. Prepare Data
+                    const header = getExportHeaders();
+                    const dataRows = rawRows.map(row => {
+                        return header.map(col => {
+                            let val = row[col];
+                            if (val === undefined || val === null) return "";
+                            return String(val);
+                        });
+                    });
+
+                    const payloadData = [header, ...dataRows];
+
+                    // 2. Payload
+                    const payload = {
+                        password: password,
+                        action: "updateSheet",
+                        sheetName: currentSheet,
+                        data: payloadData,
+                        startRow: 1,
+                        startCol: 4
+                    };
+
+                    const response = await fetch(gsUrl, {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        showToast(`✅ Updated ${result.rowsWritten} rows!`, "success");
+                    } else {
+                        if (result.error && result.error.includes("Password")) {
+                            localStorage.removeItem('PT_GAS_PASSWORD'); // Clear wrong password
+                            showToast("Wrong Password. Please try again.", "error");
+                        } else {
+                            throw new Error(result.error || "Unknown Error");
+                        }
+                    }
+
+                } catch (error) {
+                    console.error("Update Error:", error);
+                    showToast("Update Failed: " + error.message, "error");
+                } finally {
+                    setIsProcessing(false);
+                }
+            };
+
             // --- COPY (FULL DATA including excluded rows) ---
             const handleCopy = () => {
                 if (rawRows.length === 0) return showToast("No data", "error");
@@ -706,6 +772,15 @@ Output ONLY valid JSON. Start with '['.`;
                                     </button>
                                 </div>
                                 <div className="flex gap-2">
+                                    <button onClick={handleUpdateSheet}
+                                        disabled={isProcessing || !currentSheet}
+                                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors shadow-md flex items-center gap-2 ${isProcessing || !currentSheet
+                                            ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                                            : "bg-purple-600 hover:bg-purple-700 text-white"
+                                            }`}
+                                    >
+                                        <span>📝 Update Sheet</span>
+                                    </button>
                                     <button onClick={handleDownloadCSV} disabled={rawRows.length === 0} className="px-4 py-2 bg-purple-50 text-purple-600 border border-purple-100 hover:bg-purple-100 rounded-lg text-xs font-bold transition-colors disabled:opacity-50">Download CSV</button>
                                     <button onClick={handleCopy} className="px-5 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg text-xs font-bold shadow-md transition-colors flex items-center gap-2">
                                         <span>Copy Data</span><span className="bg-white/20 px-1.5 rounded text-[9px]">Full</span>
