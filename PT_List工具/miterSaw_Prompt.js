@@ -38,7 +38,7 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
 
 - Type (Machine mounting style):
   * "1.Benchtop" = Benchtop/portable miter saw, sits on a workbench or stand
-  * "2.Floor" = Floor-standing/stationary machine with integrated stand or legs
+  * "2.Floor" = Floor-standing machine with PERMANENTLY INTEGRATED legs (non-removable, built into the machine body). NOT for benchtop saws sold with a detachable stand.
   * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
 
 - Bevel (Tilting capability of the blade):
@@ -125,7 +125,7 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
 
 - Type (Machine mounting style):
   * "1.Benchtop" = Benchtop/portable miter saw, sits on a workbench or stand
-  * "2.Floor" = Floor-standing/stationary machine with integrated stand or legs
+  * "2.Floor" = Floor-standing machine with PERMANENTLY INTEGRATED legs (non-removable, built into the machine body). NOT for benchtop saws sold with a detachable stand.
   * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
 
 - Bevel (Tilting capability of the blade):
