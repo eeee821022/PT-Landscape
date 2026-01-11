@@ -37,7 +37,7 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
    - Example: 10" -> 254; 7-1/4" -> 184.
 
 - Type (Machine mounting style):
-  * "1.Miter Base" = Benchtop/portable miter saw, sits on a workbench or stand
+  * "1.Benchtop" = Benchtop/portable miter saw, sits on a workbench or stand
   * "2.Floor" = Floor-standing/stationary machine with integrated stand or legs
   * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
 
@@ -124,7 +124,7 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
    - Example: 10" -> 254; 7-1/4" -> 184.
 
 - Type (Machine mounting style):
-  * "1.Miter Base" = Benchtop/portable miter saw, sits on a workbench or stand
+  * "1.Benchtop" = Benchtop/portable miter saw, sits on a workbench or stand
   * "2.Floor" = Floor-standing/stationary machine with integrated stand or legs
   * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
 
@@ -186,7 +186,7 @@ Your task:
    - RPM (rotations per minute)
    - Watt (power)
    - Blade Diameter (in MM)
-   - Type (1.Miter Base / 2.Floor / 3.Multi Function)
+   - Type (1.Benchtop / 2.Floor / 3.Multi Function)
    - Bevel (Single / Dual / No)
    - Slide (Rail / No / Side Rail / Rail-Front / Robust Arm)
    - Laser (- / Laser / Dual laser / Shadow / Laser+Shadow)
@@ -208,7 +208,7 @@ Return a JSON object with:
 Output VALID JSON only.`,
 
   defaultSchema: {
-    "Type": ["1.Miter Base", "2.Floor", "3.Multi Function"],
+    "Type": ["1.Benchtop", "2.Floor", "3.Multi Function"],
     "Bevel": ["Single", "Dual"],
     "Slide": ["Rail", "No", "Side Rail", "Rail-Front", "Robust Arm"],
     "Laser": ["Laser", "Dual laser", "Shadow", "Laser+Shadow"],

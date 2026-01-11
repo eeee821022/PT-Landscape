@@ -41,7 +41,7 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
    - If source is in Inches, convert to MM.
 
 - Type (Table Saw style):
-  * "1.Miter Base" = Benchtop/portable table saw, sits on a workbench or stand
+  * "1.Benchtop" = Benchtop/portable table saw, sits on a workbench or stand
   * "2.Floor" = Floor-standing/stationary machine with integrated stand or legs
   * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
 
@@ -111,7 +111,7 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
    - Output in MM.
 
 - Type (Table Saw style):
-  * "1.Miter Base" = Benchtop/portable table saw, sits on a workbench or stand
+  * "1.Benchtop" = Benchtop/portable table saw, sits on a workbench or stand
   * "2.Floor" = Floor-standing/stationary machine with integrated stand or legs
   * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
 
@@ -150,7 +150,7 @@ Your task:
    - Watt (power)
    - Blade Diameter (in MM)
    - RPM (rotations per minute)
-   - Type (1.Miter Base / 2.Floor / 3.Multi Function)
+   - Type (1.Benchtop / 2.Floor / 3.Multi Function)
    - Rip Capacity (in MM)
    - Max Depth of Cut (in MM)
    - Power Supply (Cordless XXV or empty for corded)
@@ -172,7 +172,7 @@ Return a JSON object with:
 Output VALID JSON only.`,
 
    defaultSchema: {
-      "Type": ["1.Miter Base", "2.Floor", "3.Multi Function"],
+      "Type": ["1.Benchtop", "2.Floor", "3.Multi Function"],
       "Power Supply": ["Cordless 18V", "Cordless 18V2", "Cordless 36V", "Cordless 54V"]
    }
 };
