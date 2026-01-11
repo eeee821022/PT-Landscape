@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Data Validator (Full Bridge Version)</title>
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .toast-enter {
+            animation: slideInRight 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+        // ==========================================
+        // 1. SYSTEM CONFIGURATION & CONSTANTS
+        // ==========================================
+
+        // API Configuration (Bridge Mode)
+        const apiKey = ""; // System injected
+        const MODEL_ID = "gemini-2.5-flash-preview-09-2025";
+
+        // Business Logic Constants
+        const UPDATE_DATE_COL = "Update Date";
+        // Updated: Exclude A:D (Brand Logo, Image, Blade Range, Total) AND U (Price Range)
+        const HIDDEN_COLS = ["Brand Logo", "Image", "Blade Range", "Total", "Price Range"];
+        const CHUNK_SIZE = 10;
+        const MAX_RETRIES = 5;
+        const BASE_DELAY_MS = 2000; // Increased base delay for stability
+
+        // External Resource URLs (GitHub Pages)
+        const PROMPT_URLS = {
+            "Miter Saw Validator": "https://eeee821022.github.io/PT-Landscape/PT_List%E5%B7%A5%E5%85%B7/miterSaw_Prompt.js",
+            "Table Saw Validator": "https://eeee821022.github.io/PT-Landscape/PT_List%E5%B7%A5%E5%85%B7/tableSaw_Prompt.js"
+        };
+
+        // Predefined GAS URLs for quick selection
+        const GAS_URLS = {
+            "PT 機型整理": "https://script.google.com/macros/s/AKfycbwySZi6hVdt4YBxbESF9pP8uzIUYVkUQJcDGapeH1PcvDi1qGT8GtQhTvU8-qTyMoPqGA/exec"
+        };
+
+        // PT DATA 平台 GS URL (for price data loading)
+        const PT_DATA_GS_URL = "https://script.google.com/macros/s/AKfycbxayHvvpWggMF8yEtYJxhYjoCe8kR65SxIQwQkHbc7S2XCRs-VxOXWzGEgKClG56vQfLA/exec";
+
+        // Initialize Global Registry
+        window.PROMPT_REGISTRY = window.PROMPT_REGISTRY || {};
+
+        // ==========================================
+        // 2. HELPER FUNCTIONS & UTILITIES
+        // ==========================================
+
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        // Data Cleaning: Prevents Excel/Sheets column shift issues
+        const sanitizeForExport = (val) => {
+            if (val === null || val === undefined) return "";
+            return String(val).replace(/[\n\r\t]/g, " ").trim();
+        };
+
+        // Column Header Parsing for Lock Cols (e.g., "A" -> Index 0)
+        const parseColumnString = (colStr, headers) => {
+            if (!colStr) return [];
+            return colStr.split(',')
+                .map(s => s.trim().toUpperCase())
+                .map(val => {
+                    if (/^[A-Z]+$/.test(val)) {
+                        let idx = 0;
+                        for (let i = 0; i < val.length; i++) {
+                            idx = idx * 26 + (val.charCodeAt(i) - 64);
+                        }
+                        return headers[idx - 1];
+                    }
+                    return val; // Assume it's a header name if not A-Z
+                })
+                .filter(h => h && headers.includes(h));
+        };
+
+        // ==========================================
+        // 2.1 TRUST RANKING & URL SELECTION (5-Round System)
+        // ==========================================
+
+        /**
+         * Calculate platform trust ranking based on data volume.
+         * Official brand sites (no "R-" prefix) get top priority.
+         * @param {Array} dataRows - All data rows from PT DATA
+         * @returns {Array} - Sorted array of {platform, count, isOfficial}
+         */
+        const calculatePlatformTrust = (dataRows) => {
+            const platformCounts = {};
+            dataRows.forEach(row => {
+                const platform = row['Platform'] || '';
+                if (platform) {
+                    platformCounts[platform] = (platformCounts[platform] || 0) + 1;
+                }
+            });
+
+            // Convert to array and categorize
+            const rankings = Object.entries(platformCounts).map(([platform, count]) => ({
+                platform,
+                count,
+                isOfficial: !platform.startsWith('R-') // Official sites don't have R- prefix
+            }));
+
+            // Sort: Official first, then by count descending
+            rankings.sort((a, b) => {
+                if (a.isOfficial !== b.isOfficial) return a.isOfficial ? -1 : 1;
+                return b.count - a.count;
+            });
+
+            return rankings;
+        };
+
+        /**
+         * Get trust rank index for a platform (lower = more trusted)
+         */
+        const getPlatformRank = (platform, trustRanking) => {
+            const idx = trustRanking.findIndex(r => r.platform === platform);
+            return idx === -1 ? 999 : idx;
+        };
+
+        /**
+         * Select Product URL based on price criteria
+         * @param {Array} modelData - All data rows for a specific Model #
+         * @param {string} priceType - 'min', 'max', 'q2', 'q3'
+         * @param {Array} trustRanking - Platform trust ranking array
+         * @returns {Object|null} - Selected row or null
+         */
+        const selectUrlByPrice = (modelData, priceType, trustRanking) => {
+            // Filter out rows without valid price or URL
+            const validRows = modelData.filter(row => {
+                const price = parseFloat(row['Price Tag']);
+                const url = row['Product URL'];
+                return !isNaN(price) && price > 0 && url && url.trim() !== '';
+            });
+
+            if (validRows.length === 0) return null;
+
+            // Sort by price
+            const sorted = [...validRows].sort((a, b) =>
+                parseFloat(a['Price Tag']) - parseFloat(b['Price Tag'])
+            );
+
+            let targetPrice;
+            switch (priceType) {
+                case 'min':
+                    targetPrice = parseFloat(sorted[0]['Price Tag']);
+                    break;
+                case 'max':
+                    targetPrice = parseFloat(sorted[sorted.length - 1]['Price Tag']);
+                    break;
+                case 'q2': // Median (50th percentile)
+                    const midIdx = Math.floor(sorted.length / 2);
+                    targetPrice = sorted.length % 2 === 0
+                        ? (parseFloat(sorted[midIdx - 1]['Price Tag']) + parseFloat(sorted[midIdx]['Price Tag'])) / 2
+                        : parseFloat(sorted[midIdx]['Price Tag']);
+                    break;
+                case 'q3': // 75th percentile
+                    const q3Idx = Math.floor(sorted.length * 0.75);
+                    targetPrice = parseFloat(sorted[Math.min(q3Idx, sorted.length - 1)]['Price Tag']);
+                    break;
+                default:
+                    return null;
+            }
+
+            // Find rows closest to target price
+            const withDistance = validRows.map(row => ({
+                row,
+                distance: Math.abs(parseFloat(row['Price Tag']) - targetPrice),
+                rank: getPlatformRank(row['Platform'], trustRanking)
+            }));
+
+            // Sort by distance, then by trust rank
+            withDistance.sort((a, b) => {
+                if (a.distance !== b.distance) return a.distance - b.distance;
+                return a.rank - b.rank; // Lower rank = more trusted
+            });
+
+            return withDistance[0]?.row || null;
+        };
+
+        /**
+         * Get unique URLs for price-based rounds, avoiding duplicates
+         * @param {Array} modelData - All data rows for a specific Model #
+         * @param {Array} trustRanking - Platform trust ranking array
+         * @returns {Array} - Array of {type, row} (may be less than 4 if duplicates)
+         */
+        const getUniqueUrlsForRounds = (modelData, trustRanking) => {
+            const types = ['min', 'max', 'q3', 'q2'];
+            const selected = [];
+            const usedUrls = new Set();
+
+            for (const type of types) {
+                const row = selectUrlByPrice(modelData, type, trustRanking);
+                if (row && !usedUrls.has(row['Product URL'])) {
+                    selected.push({ type, row });
+                    usedUrls.add(row['Product URL']);
+                }
+            }
+
+            // If we can't distinguish by price (all same), just use any 4 unique URLs
+            if (selected.length < modelData.length) {
+                for (const row of modelData) {
+                    if (selected.length >= 4) break;
+                    const url = row['Product URL'];
+                    if (url && !usedUrls.has(url)) {
+                        selected.push({ type: 'fallback', row });
+                        usedUrls.add(url);
+                    }
+                }
+            }
+
+            return selected;
+        };
+
+        /**
+         * Generate 5-Round configuration for a model
+         * Always produces exactly 5 rounds: URL rounds + fallback rounds + 1 final Google Search
+         * 
+         * Fallback rules (if < 4 URLs):
+         * - 1 URL: 1 URL + 2 Google Search + 1 Knowledge + 1 Final Search
+         * - 2 URLs: 2 URL + 2 Google Search + 1 Final Search
+         * - 3 URLs: 3 URL + 1 Google Search + 1 Final Search
+         * - 4 URLs: 4 URL + 1 Final Search
+         * 
+         * @param {Array} urlRounds - Array of {type, row} from getUniqueUrlsForRounds
+         * @returns {Array} - Array of {mode: 'url'|'search'|'knowledge', url?, platform?}
+         */
+        const generate5RoundConfig = (urlRounds) => {
+            const config = [];
+            const urlCount = urlRounds.length;
+
+            // Add URL rounds
+            urlRounds.forEach(({ type, row }) => {
+                config.push({
+                    mode: 'url',
+                    type,
+                    url: row['Product URL'],
+                    platform: row['Platform'] || 'Unknown'
+                });
+            });
+
+            // Fill to exactly 5 rounds based on URL count:
+            // 4 URL: A1, A2, A3, A4 + B1 (1 Search)
+            // 3 URL: A1, A2, A3 + B1, B2 (2 Search)
+            // 2 URL: A1, A2 + B1, B2 + C1 (2 Search + 1 Knowledge)
+            // 1 URL: A1 + B1, B2 + C1, C2 (2 Search + 2 Knowledge)
+            if (urlCount === 1) {
+                config.push({ mode: 'search' });
+                config.push({ mode: 'search' });
+                config.push({ mode: 'knowledge' });
+                config.push({ mode: 'knowledge' });
+            } else if (urlCount === 2) {
+                config.push({ mode: 'search' });
+                config.push({ mode: 'search' });
+                config.push({ mode: 'knowledge' });
+            } else if (urlCount === 3) {
+                config.push({ mode: 'search' });
+                config.push({ mode: 'search' });
+            } else if (urlCount >= 4) {
+                config.push({ mode: 'search', isFinal: true });
+            }
+
+            return config;
+        };
+
+        /**
+         * Build a lookup map of Model # -> all matching DATA rows
+         */
+        const buildModelDataMap = (dataRows) => {
+            const map = {};
+            dataRows.forEach(row => {
+                const model = (row['Model #'] || '').trim();
+                if (model) {
+                    if (!map[model]) map[model] = [];
+                    map[model].push(row);
+                }
+            });
+            return map;
+        };
+
+        // ==========================================
+        // 3. CORE LOGIC: VOTING MECHANISM
+        // ==========================================
+
+        /**
+         * mergeByVoting (v2.0)
+         * Supports 4-Round (new models) or 5-Round (existing models) voting.
+         * @param {Object} originalRow - Original data row
+         * @param {Array} roundRows - Array of AI result rows (4 or 5)
+         * @param {Array} lockedCols - Columns to lock (not modify)
+         * @param {Array} allHeaders - All column headers
+         * @returns {Object} - Merged result with scores
+         */
+        const mergeByVoting = (originalRow, roundRows, lockedCols, allHeaders) => {
+            const result = { ...originalRow };
+            const scores = {}; // Track scores per field
+
+            // Filter columns that need voting (exclude system cols and hidden cols)
+            const votableFields = allHeaders.filter(h =>
+                h !== UPDATE_DATE_COL &&
+                !HIDDEN_COLS.includes(h) &&
+                h !== 'Image URL' &&
+                !lockedCols.includes(h)
+            );
+
+            votableFields.forEach(field => {
+                const origVal = String(originalRow[field] || "").trim();
+                const votes = {};
+                const fieldScores = { original: 0, rounds: [] };
+
+                // 1. Cast Votes
+                // Original gets 2 votes if not empty
+                if (origVal !== "") {
+                    votes[origVal] = (votes[origVal] || 0) + 2;
+                    fieldScores.original = 2;
+                }
+
+                // AI Rounds get 1 vote each
+                roundRows.forEach((row, idx) => {
+                    if (!row) {
+                        fieldScores.rounds.push(0);
+                        return; // Skip failed rounds
+                    }
+                    const val = String(row[field] || "").trim();
+                    if (val !== "") {
+                        votes[val] = (votes[val] || 0) + 1;
+                        fieldScores.rounds.push(1);
+                    } else {
+                        fieldScores.rounds.push(0);
+                    }
+                });
+
+                scores[field] = fieldScores;
+
+                // 2. Determine Winner
+                const candidates = Object.entries(votes).sort((a, b) => b[1] - a[1]);
+
+                if (candidates.length > 0) {
+                    const [winnerVal, winnerVotes] = candidates[0];
+
+                    if (origVal === "") {
+                        // Scenario 2: Original is empty. Need consensus (>= 2 votes) to fill.
+                        if (winnerVotes >= 2) {
+                            result[field] = winnerVal;
+                        } else {
+                            result[field] = "";
+                        }
+                    } else {
+                        // Scenario 1: Original exists.
+                        // Tie-breaker: If Original has same votes as Winner, Original wins.
+                        if (votes[origVal] === winnerVotes) {
+                            result[field] = origVal;
+                        } else {
+                            result[field] = winnerVal;
+                        }
+                    }
+                }
+            });
+
+            // Re-apply Locked Columns explicitly
+            lockedCols.forEach(col => {
+                if (originalRow[col] !== undefined) {
+                    result[col] = originalRow[col];
+                }
+            });
+
+            // Attach scores metadata
+            result._votingScores = scores;
+
+            return result;
+        };
+
+        /**
+         * Legacy wrapper for backward compatibility (4-round)
+         */
+        const mergeByVoting4Round = (originalRow, r1Row, r2Row, r3Row, r4Row, lockedCols, allHeaders) => {
+            return mergeByVoting(originalRow, [r1Row, r2Row, r3Row, r4Row], lockedCols, allHeaders);
+        };
+
+        // ==========================================
+        // 4. API SERVICES
+        // ==========================================
+
+        // GS API Password (not public)
+        const GS_API_KEY = "55759180";
+
+        const GAS_Service = {
+            fetchSheetNames: async (scriptUrl) => {
+                const res = await fetch(`${scriptUrl}?action=getSheets&key=${GS_API_KEY}`, { redirect: 'follow' });
+                const data = await res.json();
+                if (data.error) throw new Error(data.hint ? `${data.error} (Hint: ${data.hint})` : data.error);
+                if (!Array.isArray(data)) throw new Error("Invalid sheet list format");
+                return data;
+            },
+            fetchSheetData: async (scriptUrl, sheetName) => {
+                const url = `${scriptUrl}?action=getData&sheet=${encodeURIComponent(sheetName)}&key=${GS_API_KEY}`;
+                const res = await fetch(url, { redirect: 'follow' });
+                const data = await res.json();
+                if (data.error) throw new Error(data.hint ? `${data.error} (Hint: ${data.hint})` : data.error);
+                if (!Array.isArray(data)) throw new Error("Invalid data format");
+                return data;
+            }
+        };
+
+        // Gemini API Service
+        const Gemini_Service = {
+            callAPI: async (dataChunk, prompt, useGoogleSearch) => {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${apiKey}`;
+
+                // Optimized System Instruction - VERY STRICT
+                const systemInstruction = `*** SYSTEM COMMAND ***
+You are a pure JSON generator. 
+1. Output ONLY valid JSON.
+2. NO conversational text. NO introductions. NO explanations. NO bullet points.
+3. START your response with '{' and END with '}'.
+4. Do NOT use Markdown formatting (no \`\`\`json).
+5. If you cannot verify data, return null or empty string in fields, but maintain JSON structure.`;
+
+                // Recursive Execute Function with Dynamic Prompt Injection
+                const execute = async (retryCount = 0) => {
+                    try {
+                        let finalPrompt = `${prompt}\n\n${systemInstruction}\n\nTarget Data JSON:\n${JSON.stringify(dataChunk)}`;
+
+                        // INJECT WARNING ON RETRY
+                        if (retryCount > 0) {
+                            finalPrompt += `\n\n\n!!! IMPORTANT WARNING (RETRY ${retryCount}) !!!\nYour previous response was REJECTED because it was text, not JSON.\nDO NOT use bullet points.\nDO NOT summarize.\nOUTPUT ONLY RAW JSON.\nStart immediately with '{' or '['.`;
+                        }
+
+                        const payload = {
+                            contents: [{
+                                parts: [{ text: finalPrompt }]
+                            }]
+                        };
+
+                        if (useGoogleSearch) {
+                            payload.tools = [{ "google_search": {} }];
+                        }
+
+                        const response = await fetch(url, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (!response.ok) {
+                            if (response.status === 429) throw new Error("Rate Limit Exceeded");
+                            throw new Error(`HTTP Error ${response.status}`);
+                        }
+
+                        const resJson = await response.json();
+                        const candidate = resJson.candidates?.[0];
+                        if (!candidate) throw new Error("Empty Candidate Response");
+
+                        const text = candidate.content?.parts?.[0]?.text;
+                        if (!text) throw new Error("Empty Text Content");
+
+                        // --- Robust JSON Extraction & Repair Logic ---
+                        let jsonStr = text.trim();
+
+                        // 1. Find the widest possible JSON container (Object {} or Array [])
+                        // We search for the first occurrence of { or [ and the last occurrence of } or ]
+                        const firstOpen = jsonStr.search(/[\{\[]/);
+                        const lastClose = Math.max(jsonStr.lastIndexOf('}'), jsonStr.lastIndexOf(']'));
+
+                        if (firstOpen === -1 || lastClose === -1) {
+                            console.warn("No JSON structure found in response (Text Mode Detected):", text.substring(0, 100) + "...");
+                            throw new Error("No JSON Structure Found (Conversational Override)");
+                        }
+
+                        if (firstOpen !== -1 && lastClose !== -1) {
+                            jsonStr = jsonStr.substring(firstOpen, lastClose + 1);
+                        }
+
+                        let parsedData;
+                        try {
+                            parsedData = JSON.parse(jsonStr);
+                        } catch (parseError) {
+                            // Recovery Strategies
+                            let recovered = false;
+
+                            // Strategy A: Double Closing Braces/Trailing Garbage (e.g. }} or } } or ]])
+                            if (!recovered) {
+                                let tempStr = jsonStr;
+                                // Try trimming up to 3 trailing characters (brackets or spaces)
+                                for (let i = 0; i < 3; i++) {
+                                    if (tempStr.endsWith('}') || tempStr.endsWith(']')) {
+                                        tempStr = tempStr.substring(0, tempStr.length - 1).trim();
+                                        try {
+                                            parsedData = JSON.parse(tempStr);
+                                            recovered = true;
+                                            console.warn("JSON Repaired by trimming trailing characters");
+                                            break;
+                                        } catch (e) { continue; }
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Strategy B: Missing Header (Starts with [ ends with })
+                            if (!recovered && jsonStr.startsWith('[') && jsonStr.endsWith('}')) {
+                                try {
+                                    parsedData = JSON.parse(`{ "corrected": ${jsonStr}`);
+                                    recovered = true;
+                                    console.warn("JSON Repaired by adding missing header");
+                                } catch (e) { }
+                            }
+
+                            if (!recovered) {
+                                console.error("JSON Parse Failed, Raw:", text);
+                                throw new Error("Invalid JSON Output from AI");
+                            }
+                        }
+
+                        const groundingMetadata = candidate.groundingMetadata?.groundingAttributions?.map(a => ({
+                            uri: a.web?.uri,
+                            title: a.web?.title
+                        })) || [];
+
+                        return { data: parsedData, grounding: groundingMetadata, raw: resJson };
+
+                    } catch (error) {
+                        if (retryCount < MAX_RETRIES) {
+                            // Exponential Backoff: 2s, 4s, 8s, 16s...
+                            const delay = Math.pow(2, retryCount) * BASE_DELAY_MS;
+                            console.warn(`Retry ${retryCount + 1}/${MAX_RETRIES} after ${delay}ms... Reason: ${error.message}`);
+                            await sleep(delay);
+                            return execute(retryCount + 1);
+                        }
+                        throw error;
+                    }
+                };
+
+                return execute();
+            }
+        };
+
+        // ==========================================
+        // 5. MAIN REACT COMPONENT
+        // ==========================================
+
+        const App = () => {
+            const [scriptUrl, setScriptUrl] = useState(localStorage.getItem('AI_VALIDATOR_URL') || '');
+            const [isConnected, setIsConnected] = useState(false);
+            const [isConnecting, setIsConnecting] = useState(false);
+            const [sheetNames, setSheetNames] = useState([]);
+            const [selectedSheet, setSelectedSheet] = useState("");
+            const [selectedCountry, setSelectedCountry] = useState("USA");
+            const [rawRows, setRawRows] = useState([]);
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [progress, setProgress] = useState({ percent: 0, status: "" });
+            const [processedBatches, setProcessedBatches] = useState([]);
+            // Updated: Default Lock Column E (Image URL)
+            const [excludedColumns, setExcludedColumns] = useState("E");
+            const [selectedPromptKey, setSelectedPromptKey] = useState("Miter Saw Validator");
+            const [toast, setToast] = useState(null);
+            const [logHistory, setLogHistory] = useState([]);
+            const [logViewer, setLogViewer] = useState({ isOpen: false, type: 'prompt', index: 0 });
+            // New: PT Data State
+            const [ptData, setPtData] = useState([]);
+            const [ignoreNewItems, setIgnoreNewItems] = useState(true);
+            const [ptImportedModels, setPtImportedModels] = useState(new Set());
+            const [ptOnlyMode, setPtOnlyMode] = useState(true);
+            // PT DATA GS State
+            const [ptDataSheets, setPtDataSheets] = useState([]);
+            const [selectedPtDataSheet, setSelectedPtDataSheet] = useState('');
+            const [isPtDataLoading, setIsPtDataLoading] = useState(false);
+            // 5-Round System State
+            const [trustRanking, setTrustRanking] = useState([]);
+            const [modelDataMap, setModelDataMap] = useState({});
+
+            useEffect(() => {
+                const loadPrompt = async () => {
+                    const url = PROMPT_URLS[selectedPromptKey];
+                    if (url) {
+                        try {
+                            const res = await fetch(url);
+                            if (res.ok) {
+                                const text = await res.text();
+                                new Function(text)();
+                                console.log(`Prompt loaded: ${selectedPromptKey}`);
+                            }
+                        } catch (e) {
+                            console.error("Failed to load prompt config", e);
+                        }
+                    }
+                };
+                loadPrompt();
+            }, [selectedPromptKey]);
+
+            // Handler for connecting to PT DATA GS (manual trigger)
+            const handleConnectPtData = async () => {
+                setIsPtDataLoading(true);
+                try {
+                    const res = await fetch(`${PT_DATA_GS_URL}?action=getSheets&key=${GS_API_KEY}`, { redirect: 'follow' });
+                    const sheets = await res.json();
+                    if (sheets.error) throw new Error(sheets.hint ? `${sheets.error} (Hint: ${sheets.hint})` : sheets.error);
+                    if (Array.isArray(sheets)) {
+                        // Filter to Data_ sheets only
+                        const dataSheets = sheets.filter(s => s.startsWith('Data_'));
+                        setPtDataSheets(dataSheets);
+                        showToast(`Connected! Found ${dataSheets.length} sheets`, 'success');
+                        console.log('PT DATA sheets loaded:', dataSheets);
+                    }
+                } catch (e) {
+                    console.error("Failed to load PT DATA sheets:", e);
+                    showToast("Failed to connect to PT DATA GS: " + e.message, "error");
+                } finally {
+                    setIsPtDataLoading(false);
+                }
+            };
+
+            // Handler for loading PT DATA from GS
+            const handleLoadPtDataFromGS = async (sheetName) => {
+                if (!sheetName) return;
+                setSelectedPtDataSheet(sheetName);
+                setIsPtDataLoading(true);
+
+                try {
+                    const res = await fetch(`${PT_DATA_GS_URL}?action=getData&sheet=${encodeURIComponent(sheetName)}&key=${GS_API_KEY}`, { redirect: 'follow' });
+                    const rows = await res.json();
+
+                    if (rows.error) throw new Error(rows.hint ? `${rows.error} (Hint: ${rows.hint})` : rows.error);
+                    if (!Array.isArray(rows)) {
+                        throw new Error("Invalid data format");
+                    }
+
+                    setPtData(rows);
+
+                    // Calculate 5-Round System data
+                    const ranking = calculatePlatformTrust(rows);
+                    setTrustRanking(ranking);
+                    console.log('Trust Ranking:', ranking.slice(0, 10)); // Log top 10
+
+                    const dataMap = buildModelDataMap(rows);
+                    setModelDataMap(dataMap);
+                    console.log('Model Data Map entries:', Object.keys(dataMap).length);
+
+                    if (rawRows.length > 0) {
+                        applyPTDataToRaw(rows, rawRows);
+                    } else {
+                        showToast(`Loaded ${rows.length} rows from PT DATA. Trust Ranking ready (${ranking.length} platforms).`, "success");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast("Failed to load PT DATA: " + err.message, "error");
+                } finally {
+                    setIsPtDataLoading(false);
+                }
+            };
+
+            const showToast = (message, type = 'success') => {
+                setToast({ message, type });
+                setTimeout(() => setToast(null), 4000);
+            };
+
+            const fullHeadersOrder = useMemo(() => {
+                if (rawRows.length === 0) return [];
+                const keys = Object.keys(rawRows[0]);
+                const fixedOrder = [...HIDDEN_COLS, UPDATE_DATE_COL];
+                const rest = keys.filter(k => !fixedOrder.some(fo => fo.toLowerCase() === k.toLowerCase()));
+                return [...fixedOrder, ...rest];
+            }, [rawRows]);
+
+            const displayHeaders = useMemo(() => fullHeadersOrder.filter(h => !HIDDEN_COLS.includes(h)), [fullHeadersOrder]);
+
+            const handleConnect = async () => {
+                if (!scriptUrl) return showToast("Please enter Script URL", "error");
+                setIsConnecting(true);
+                try {
+                    const sheets = await GAS_Service.fetchSheetNames(scriptUrl);
+                    setSheetNames(sheets);
+                    setIsConnected(true);
+                    localStorage.setItem('AI_VALIDATOR_URL', scriptUrl);
+                    showToast("Connected to Google Sheets");
+                } catch (e) {
+                    showToast(e.message, "error");
+                } finally {
+                    setIsConnecting(false);
+                }
+            };
+
+            const handleLoadSheet = async (sheet) => {
+                setSelectedSheet(sheet);
+                try {
+                    const data = await GAS_Service.fetchSheetData(scriptUrl, sheet);
+                    const cleaned = data.filter(r => (r['Model #'] || r['Brand'])).map(row => {
+                        const newRow = {};
+                        Object.keys(row).forEach(k => {
+                            const cleanK = k.replace(/[\n\r]/g, " ").trim();
+                            if (!cleanK.startsWith('_')) newRow[cleanK] = row[k];
+                        });
+                        newRow[UPDATE_DATE_COL] = newRow[UPDATE_DATE_COL] || newRow["更新日期"] || "";
+                        delete newRow["更新日期"];
+                        return newRow;
+                    });
+                    setRawRows(cleaned);
+                    setProcessedBatches([]);
+                    showToast(`Loaded ${cleaned.length} rows`);
+                } catch (e) {
+                    showToast(e.message, "error");
+                }
+            };
+
+            // --- PT Data Load Logic ---
+
+            const handleLoadPTData = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const text = e.target.result;
+                        const rows = parseCSV(text);
+                        setPtData(rows);
+
+                        if (rawRows.length > 0) {
+                            applyPTDataToRaw(rows, rawRows);
+                        } else {
+                            showToast(`Loaded ${rows.length} rows from CSV. Please load Sheet data to apply.`, "success");
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        showToast("Failed to parse CSV: " + err.message, "error");
+                    }
+                };
+                reader.readAsText(file, 'utf-8');
+            };
+
+            const parseCSV = (text) => {
+                const lines = text.split(/\r?\n/);
+                // Handle basic CSV parsing (assuming standard format from pandas)
+                // Using a simple split might break on commas inside quotes.
+                // A slightly more robust regex approach:
+                const parseLine = (line) => {
+                    const pattern = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g; // Simplified
+                    // Better regex for CSV:
+                    const matches = [];
+                    let match;
+                    const regex = /(?:^|,)(?:"([^"]*(?:""[^"]*)*)"|([^",]*))/g;
+                    while ((match = regex.exec(line)) !== null) {
+                        // match[1] is quoted value, match[2] is unquoted
+                        let val = match[1] ? match[1].replace(/""/g, '"') : match[2];
+                        matches.push(val ? val.trim() : "");
+                        if (regex.lastIndex === line.length) break; // End of line
+                    }
+                    // Handle trailing empty field if comma is last char
+                    if (line.endsWith(',')) matches.push("");
+                    return matches.slice(0, -1); // Remove the extra empty match from the loop structure if needed, or adjust regex
+                };
+
+                // Fallback to simple split if complex parsing unnecessary or risky without library
+                // The pandas to_csv usually quotes fields. 
+                // Let's use a standard simple parser logic.
+                const headers = lines[0].split(',').map(h => h.trim());
+
+                return lines.slice(1).filter(l => l.trim()).map(line => {
+                    // Simple split for now, assuming no commas in fields for simplicity 
+                    // or fairly standard CSV. 
+                    // If commas in fields are common, we need the regex. 
+                    // Let's try the simple split first as it is safer than a buggy regex.
+                    // If the user's CSV is complex, we might need a library. 
+                    // But usually these are product catalogs.
+                    // Actually, titles often have commas. We MUST handle quotes.
+
+                    const row = {};
+                    let currentVal = '';
+                    let inQuotes = false;
+                    let values = [];
+
+                    for (let i = 0; i < line.length; i++) {
+                        const char = line[i];
+                        if (char === '"') {
+                            if (inQuotes && line[i + 1] === '"') {
+                                currentVal += '"';
+                                i++;
+                            } else {
+                                inQuotes = !inQuotes;
+                            }
+                        } else if (char === ',' && !inQuotes) {
+                            values.push(currentVal);
+                            currentVal = '';
+                        } else {
+                            currentVal += char;
+                        }
+                    }
+                    values.push(currentVal);
+
+                    headers.forEach((h, i) => row[h] = values[i] ? values[i].trim() : '');
+                    return row;
+                });
+            };
+
+            const applyPTDataToRaw = (ptRows, currentRawRows) => {
+                // 1. Index PT Data
+                // Group by SKU for filling missing metadata
+                const ptBySKU = {};
+                // Group by Model for finding prices
+                const ptByModel = {};
+
+                // Identify date headers in PT CSV (YYYYMMDD)
+                const dateHeaders = [];
+                if (ptRows.length > 0) {
+                    Object.keys(ptRows[0]).forEach(k => {
+                        if (/^\d{8}$/.test(k)) dateHeaders.push(k);
+                    });
+                    dateHeaders.sort().reverse(); // Newest first
+                }
+
+                ptRows.forEach(row => {
+                    const sku = row['SKU'];
+                    const model = row['Model #'];
+                    const exclude = row['Exclude Update'];
+
+                    if (sku) ptBySKU[sku] = row;
+
+                    if (model && exclude !== 'Y') {
+                        if (!ptByModel[model]) ptByModel[model] = [];
+                        ptByModel[model].push(row);
+                    }
+                });
+
+                const today = new Date().toISOString().split('T')[0];
+                let matchedCount = 0;
+
+                const updated = currentRawRows.map(row => {
+                    const newRow = { ...row };
+
+                    // A. Fill Matching Metadata (via SKU)
+                    const sku = newRow['SKU'] || newRow['Model #'] || ''; // Fallback for matching
+                    // Note: Raw data might have SKU in 'SKU' col or 'Model #' col depending on sheet
+                    // Let's try to match strict SKU first
+
+                    let ptRowViaSku = ptBySKU[sku];
+                    if (ptRowViaSku) {
+                        if (!newRow['Model #'] && ptRowViaSku['Model #']) {
+                            newRow['Model #'] = ptRowViaSku['Model #'];
+                            // Mark as new item if we filled critical info
+                            newRow[UPDATE_DATE_COL] = `${today} New Item`;
+                        }
+                        if (!newRow['Brand'] && ptRowViaSku['Brand']) {
+                            newRow['Brand'] = ptRowViaSku['Brand'];
+                        }
+                    }
+
+                    // B. Update Price & Image (via Model)
+                    const model = newRow['Model #'];
+                    if (model && ptByModel[model]) {
+                        const group = ptByModel[model];
+
+                        let bestPrice = null;
+                        let bestRow = null;
+
+                        // Find most recent date that has prices
+                        for (const dateCol of dateHeaders) {
+                            let minP = Infinity;
+                            let minRow = null;
+
+                            group.forEach(pRow => {
+                                const pValStr = pRow[dateCol];
+                                if (pValStr) {
+                                    // Parse price (remove currency, comma vs dot?)
+                                    // Assume format: "1234.56" or "1234"
+                                    const pNum = parseFloat(String(pValStr).replace(/[^\d.]/g, ''));
+                                    if (!isNaN(pNum) && pNum > 0) {
+                                        if (pNum < minP) {
+                                            minP = pNum;
+                                            minRow = pRow;
+                                        }
+                                    }
+                                }
+                            });
+
+                            if (minRow) {
+                                bestPrice = minP;
+                                bestRow = minRow;
+                                break; // Found latest date with data
+                            }
+                        }
+
+                        // Fallback: Use Price Tag column if dateHeaders didn't yield price
+                        if (!bestRow && group.length > 0) {
+                            let minP = Infinity;
+                            group.forEach(pRow => {
+                                const priceTag = pRow['Price Tag'];
+                                if (priceTag) {
+                                    const pNum = parseFloat(String(priceTag).replace(/[^\d.]/g, ''));
+                                    if (!isNaN(pNum) && pNum > 0 && pNum < minP) {
+                                        minP = pNum;
+                                        bestRow = pRow;
+                                        bestPrice = pNum;
+                                    }
+                                }
+                            });
+                        }
+
+                        if (bestRow) {
+                            // Update Price (Col T - "Price")
+                            newRow['Price'] = bestPrice;
+
+                            // Update Image URL (Grab from the row with best price)
+                            if (bestRow['Image URL']) {
+                                // Try to find standard Image headers
+                                if (newRow.hasOwnProperty('Image URL')) newRow['Image URL'] = bestRow['Image URL'];
+                                else if (newRow.hasOwnProperty('Image')) newRow['Image'] = bestRow['Image URL'];
+                                else newRow['Image URL'] = bestRow['Image URL']; // Default create
+                            }
+
+                            // Mark as updated if not already marked as New Item
+                            if (!newRow[UPDATE_DATE_COL] || !newRow[UPDATE_DATE_COL].includes('New Item')) {
+                                newRow[UPDATE_DATE_COL] = `${today} Price Updated`;
+                            }
+                            matchedCount++;
+                        }
+                    }
+
+                    return newRow;
+                });
+
+                // C. NEW: 找出 CSV 中有但 GS 中沒有的機型並新增
+                const existingModels = new Set(
+                    currentRawRows.map(r => (r['Model #'] || '').trim().toLowerCase())
+                        .filter(m => m)
+                );
+
+                console.log('=== DEBUG: New Model Detection ===');
+                console.log('Existing models in GS:', existingModels.size);
+                console.log('Unique models in PT CSV:', Object.keys(ptByModel).length);
+                console.log('Date headers found:', dateHeaders);
+
+                const newRows = [];
+                const allHeaders = Object.keys(currentRawRows[0] || {});
+                console.log('Headers from GS:', allHeaders);
+
+                Object.entries(ptByModel).forEach(([model, ptRowGroup]) => {
+                    const modelLower = model.toLowerCase();
+                    if (!existingModels.has(modelLower)) {
+                        // 這是新機型，需要新增到表格
+                        console.log('NEW model found:', model);
+                        const representative = ptRowGroup[0]; // 取第一筆作為代表
+
+                        // 找最新的價格
+                        let bestPrice = null;
+                        for (const dateCol of dateHeaders) {
+                            for (const pRow of ptRowGroup) {
+                                const pValStr = pRow[dateCol];
+                                if (pValStr) {
+                                    const pNum = parseFloat(String(pValStr).replace(/[^\d.]/g, ''));
+                                    if (!isNaN(pNum) && pNum > 0) {
+                                        if (bestPrice === null || pNum < bestPrice) {
+                                            bestPrice = pNum;
+                                        }
+                                    }
+                                }
+                            }
+                            if (bestPrice !== null) break;
+                        }
+
+                        // Fallback: Use Price Tag column if dateHeaders didn't yield price
+                        if (bestPrice === null) {
+                            for (const pRow of ptRowGroup) {
+                                const priceTag = pRow['Price Tag'];
+                                if (priceTag) {
+                                    const pNum = parseFloat(String(priceTag).replace(/[^\d.]/g, ''));
+                                    if (!isNaN(pNum) && pNum > 0) {
+                                        if (bestPrice === null || pNum < bestPrice) {
+                                            bestPrice = pNum;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // 建立新行
+                        const newRow = {};
+                        allHeaders.forEach(h => newRow[h] = ''); // 初始化所有欄位
+
+                        newRow['Model #'] = model;
+                        newRow['Brand'] = representative['Brand'] || '';
+                        newRow['Image URL'] = representative['Image URL'] || '';
+                        newRow['Price'] = bestPrice || '';
+                        newRow[UPDATE_DATE_COL] = `${today} NEW`;
+
+                        newRows.push(newRow);
+                    }
+                });
+
+                console.log('Total NEW rows to add:', newRows.length);
+
+                // Track only NEW models from PT (not updated ones)
+                const importedModels = new Set();
+                newRows.forEach(row => {
+                    const model = row['Model #'] || '';
+                    if (model) importedModels.add(model.toLowerCase());
+                });
+                setPtImportedModels(importedModels);
+                console.log('PT NEW Models:', importedModels.size);
+
+                const finalRows = [...updated, ...newRows];
+                setRawRows(finalRows);
+                showToast(`Applied PT Data: Updated ${matchedCount} items, Added ${newRows.length} NEW models. Check '${UPDATE_DATE_COL}' column.`, newRows.length > 0 ? 'success' : 'info');
+            };
+
+            const startAudit = async () => {
+                if (isProcessing || rawRows.length === 0) return;
+
+                let rowsToProcess = rawRows;
+
+                // Check if PT-only mode is enabled
+                if (ptOnlyMode) {
+                    if (ptImportedModels.size === 0) {
+                        showToast('請先載入 PT CSV 資料 (Load PT CSV first)', 'error');
+                        return;
+                    }
+
+                    // Filter to only PT-imported models
+                    rowsToProcess = rawRows.filter(row => {
+                        const model = (row['Model #'] || '').toLowerCase();
+                        return ptImportedModels.has(model);
+                    });
+
+                    if (rowsToProcess.length === 0) {
+                        showToast('沒有找到 PT 匯入的機型 (No PT-imported models found)', 'error');
+                        return;
+                    }
+                }
+
+                console.log(`Processing ${rowsToProcess.length} models${ptOnlyMode ? ' (PT-only mode)' : ''} out of ${rawRows.length} total`);
+
+                setIsProcessing(true);
+                setProcessedBatches([]);
+                setLogHistory([]);
+                setProgress({ percent: 0, status: "Initializing..." });
+
+                const startTime = Date.now();
+                const today = new Date().toISOString().split('T')[0];
+
+                try {
+                    const groups = {};
+                    rowsToProcess.forEach(row => {
+                        const brand = String(row['Brand'] || 'Unknown').trim();
+                        const key = brand.toLowerCase();
+                        if (!groups[key]) groups[key] = { name: brand, rows: [] };
+                        groups[key].rows.push(row);
+                    });
+
+                    const brandKeys = Object.keys(groups);
+                    const lockedCols = parseColumnString(excludedColumns, fullHeadersOrder);
+
+                    // Separate rows into 5-round (existing) and 4-round (new) categories
+                    const existingModels = [];
+                    const newModels = [];
+
+                    rowsToProcess.forEach(row => {
+                        const model = (row['Model #'] || '').trim();
+                        if (model && modelDataMap[model] && modelDataMap[model].length > 0) {
+                            existingModels.push(row);
+                        } else {
+                            newModels.push(row);
+                        }
+                    });
+
+                    console.log(`5-Round (existing): ${existingModels.length}, 4-Round (new): ${newModels.length}`);
+
+                    // Calculate total work units (chunks, not individual models)
+                    const existingChunks = Math.ceil(existingModels.length / CHUNK_SIZE);
+                    const newChunks = Math.ceil(newModels.length / CHUNK_SIZE);
+                    const totalUnits = existingChunks + newChunks;
+                    let processedUnits = 0;
+
+                    const config = window.PROMPT_REGISTRY?.[selectedPromptKey];
+                    const tplSearch = config?.systemPromptTemplate || ((t, c) => `Verify ${t} in ${c} with Google Search.`);
+                    const tplNoSearch = config?.systemPromptTemplateNoSearch || ((t, c) => `Verify ${t} in ${c} with Internal Knowledge.`);
+                    const tplUrl = config?.systemPromptTemplateUrl || ((t, c) => `Visit each item's _productUrl to extract ${t} specifications in ${c}.`);
+
+                    // Safe Call Wrapper
+                    const safeCall = async (dataInput, prompt, search) => {
+                        try {
+                            return await Gemini_Service.callAPI(dataInput, prompt, search);
+                        } catch (e) {
+                            console.error("Round failed after retries (skipping):", e);
+                            return { data: { corrected: [], new_items: [] }, grounding: [] };
+                        }
+                    };
+
+                    // ========================================
+                    // PHASE 1: Process EXISTING models (5-Round URL-based, Batch by Round)
+                    // ========================================
+                    // Group existing models by brand AND URL count for consistent round types
+                    if (existingModels.length > 0) {
+                        // Pre-calculate URL counts and configs for each model
+                        const modelConfigs = {};
+                        const modelUrlCounts = {};
+                        existingModels.forEach(row => {
+                            const model = (row['Model #'] || '').trim();
+                            const modelUrls = getUniqueUrlsForRounds(modelDataMap[model], trustRanking);
+                            modelConfigs[model] = generate5RoundConfig(modelUrls);
+                            modelUrlCounts[model] = modelUrls.length;
+                        });
+
+                        // Group by Brand + URL count (e.g., "bosch_4", "bosch_3")
+                        const existingGroups = {};
+                        existingModels.forEach(row => {
+                            const brand = String(row['Brand'] || 'Unknown').trim();
+                            const model = (row['Model #'] || '').trim();
+                            const urlCount = modelUrlCounts[model] || 0;
+                            const key = `${brand.toLowerCase()}_${urlCount}`;
+                            if (!existingGroups[key]) existingGroups[key] = { name: brand, urlCount, rows: [] };
+                            existingGroups[key].rows.push(row);
+                        });
+
+                        // Sort groups: 4 URLs first, then 3, 2, 1 (same URL count = same round types)
+                        const sortedKeys = Object.keys(existingGroups).sort((a, b) => {
+                            const countA = existingGroups[a].urlCount;
+                            const countB = existingGroups[b].urlCount;
+                            return countB - countA; // Descending by URL count
+                        });
+
+                        console.log(`Grouped into ${sortedKeys.length} URL-count groups:`,
+                            sortedKeys.map(k => `${k}(${existingGroups[k].rows.length})`).join(', '));
+
+                        for (const key of sortedKeys) {
+                            const brandGroup = existingGroups[key];
+                            const brandName = brandGroup.name;
+
+                            const promptSearch = tplSearch(selectedSheet, selectedCountry).replace(/{{BRAND}}/g, brandName);
+                            const promptNoSearch = tplNoSearch(selectedSheet, selectedCountry).replace(/{{BRAND}}/g, brandName);
+                            const promptUrl = tplUrl(selectedSheet, selectedCountry).replace(/{{BRAND}}/g, brandName);
+
+                            for (let i = 0; i < brandGroup.rows.length; i += CHUNK_SIZE) {
+                                processedUnits++;
+                                const chunk = brandGroup.rows.slice(i, i + CHUNK_SIZE);
+
+                                setProgress({
+                                    percent: Math.round((processedUnits / totalUnits) * 100),
+                                    status: `5-Round: ${brandName} [${Math.ceil((i + 1) / CHUNK_SIZE)}/${Math.ceil(brandGroup.rows.length / CHUNK_SIZE)}]`
+                                });
+
+                                if (processedUnits > 1) await sleep(BASE_DELAY_MS);
+
+                                // Process all 5 rounds for this chunk
+                                const allRoundResults = [[], [], [], [], []]; // 5 rounds x chunk.length results
+
+                                for (let roundIdx = 0; roundIdx < 5; roundIdx++) {
+                                    // Prepare chunk for this round
+                                    const chunkForAI = chunk.map(row => {
+                                        const model = (row['Model #'] || '').trim();
+                                        const roundConfig = modelConfigs[model];
+                                        const roundInfo = roundConfig[roundIdx] || { mode: 'search' };
+
+                                        const cleanRow = { ...row };
+                                        HIDDEN_COLS.forEach(h => delete cleanRow[h]);
+
+                                        // Add _productUrl if this round uses URL mode
+                                        if (roundInfo.mode === 'url') {
+                                            cleanRow._productUrl = roundInfo.url;
+                                            cleanRow._platform = roundInfo.platform;
+                                        }
+
+                                        return { cleanRow, mode: roundInfo.mode };
+                                    });
+
+                                    // Determine prompt and search mode for this round
+                                    // Use majority mode (most items' mode)
+                                    const modeCounts = { url: 0, search: 0, knowledge: 0 };
+                                    chunkForAI.forEach(item => modeCounts[item.mode]++);
+                                    const dominantMode = Object.entries(modeCounts)
+                                        .sort((a, b) => b[1] - a[1])[0][0];
+
+                                    let prompt, useSearch;
+                                    if (dominantMode === 'url') {
+                                        prompt = promptUrl;
+                                        useSearch = true;
+                                    } else if (dominantMode === 'search') {
+                                        prompt = promptSearch;
+                                        useSearch = true;
+                                    } else {
+                                        prompt = promptNoSearch;
+                                        useSearch = false;
+                                    }
+
+                                    const dataForApi = chunkForAI.map(item => item.cleanRow);
+                                    const result = await safeCall(dataForApi, prompt, useSearch);
+
+                                    // Log this round
+                                    const timestamp = new Date().toLocaleTimeString();
+                                    const roundLabel = `R${roundIdx + 1} [${dominantMode === 'url' ? 'URL' : (dominantMode === 'search' ? 'Google' : 'Model')}]`;
+                                    setLogHistory(prev => [{
+                                        id: Date.now() + roundIdx,
+                                        timestamp,
+                                        brand: `${brandName} (Batch ${Math.ceil((i + 1) / CHUNK_SIZE)})`,
+                                        round: roundLabel,
+                                        prompt: dominantMode === 'url' ? 'URL Mode (per-row)' : (dominantMode === 'search' ? 'Google Search' : 'Model Knowledge'),
+                                        response: result.data || "FAILED",
+                                        raw: result.raw
+                                    }, ...prev]);
+
+                                    // Store results
+                                    const resultList = (result && result.data) ? (Array.isArray(result.data) ? result.data : (result.data.corrected || [])) : [];
+                                    chunk.forEach((_, idx) => {
+                                        allRoundResults[roundIdx].push(resultList[idx] || null);
+                                    });
+
+                                    // Small delay between rounds
+                                    if (roundIdx < 4) await sleep(500);
+                                }
+
+                                // Merge results for each row in chunk
+                                const corrected = chunk.map((orig, idx) => {
+                                    const roundRows = allRoundResults.map(roundResult => roundResult[idx]);
+                                    const merged = mergeByVoting(orig, roundRows, lockedCols, displayHeaders);
+                                    const hasChanges = displayHeaders.some(h =>
+                                        h !== UPDATE_DATE_COL &&
+                                        String(merged[h] || "").trim() !== String(orig[h] || "").trim()
+                                    );
+                                    merged[UPDATE_DATE_COL] = hasChanges ? `${today} Corrected (5R)` : `${today} Confirmed (5R)`;
+                                    return merged;
+                                });
+
+                                setProcessedBatches(prev => [...prev, {
+                                    brand: brandName,
+                                    original: chunk,
+                                    corrected: corrected,
+                                    newItems: [],
+                                    grounding: [],
+                                    mode: '5-round'
+                                }]);
+                            }
+                        }
+                    }
+
+                    // ========================================
+                    // PHASE 2: Process NEW models (4-Round Search/Knowledge)
+                    // ========================================
+                    if (newModels.length > 0) {
+                        // Group new models by brand for batch processing
+                        const newGroups = {};
+                        newModels.forEach(row => {
+                            const brand = String(row['Brand'] || 'Unknown').trim();
+                            const key = brand.toLowerCase();
+                            if (!newGroups[key]) newGroups[key] = { name: brand, rows: [] };
+                            newGroups[key].rows.push(row);
+                        });
+
+                        for (const key of Object.keys(newGroups)) {
+                            const brandGroup = newGroups[key];
+                            const brandName = brandGroup.name;
+
+                            const promptSearch = tplSearch(selectedSheet, selectedCountry).replace(/{{BRAND}}/g, brandName);
+                            const promptNoSearch = tplNoSearch(selectedSheet, selectedCountry).replace(/{{BRAND}}/g, brandName);
+
+                            for (let i = 0; i < brandGroup.rows.length; i += CHUNK_SIZE) {
+                                processedUnits++;
+                                const chunk = brandGroup.rows.slice(i, i + CHUNK_SIZE);
+
+                                const chunkForAI = chunk.map(row => {
+                                    const cleanRow = { ...row };
+                                    HIDDEN_COLS.forEach(h => delete cleanRow[h]);
+                                    return cleanRow;
+                                });
+
+                                setProgress({
+                                    percent: Math.round((processedUnits / totalUnits) * 100),
+                                    status: `4-Round: ${brandName} [${Math.ceil((i + 1) / CHUNK_SIZE)}/${Math.ceil(brandGroup.rows.length / CHUNK_SIZE)}]`
+                                });
+
+                                if (processedUnits > 1) await sleep(BASE_DELAY_MS);
+
+                                const [r1, r2, r3, r4] = await Promise.all([
+                                    safeCall(chunkForAI, promptSearch, true),
+                                    safeCall(chunkForAI, promptSearch, true),
+                                    safeCall(chunkForAI, promptNoSearch, false),
+                                    safeCall(chunkForAI, promptNoSearch, false)
+                                ]);
+
+                                const timestamp = new Date().toLocaleTimeString();
+                                [r1, r2, r3, r4].forEach((res, idx) => {
+                                    setLogHistory(prev => [{
+                                        id: Date.now() + idx,
+                                        timestamp,
+                                        brand: `${brandName} (Batch ${Math.ceil((i + 1) / CHUNK_SIZE)})`,
+                                        round: `R${idx + 1} [${idx < 2 ? 'Google' : 'Model'}]`,
+                                        prompt: idx < 2 ? promptSearch : promptNoSearch,
+                                        response: res.data || "FAILED",
+                                        raw: res.raw
+                                    }, ...prev]);
+                                });
+
+                                const getList = (r) => (r && r.data) ? (Array.isArray(r.data) ? r.data : (r.data.corrected || [])) : [];
+                                const l1 = getList(r1), l2 = getList(r2), l3 = getList(r3), l4 = getList(r4);
+
+                                const corrected = chunk.map((orig, idx) => {
+                                    const merged = mergeByVoting(
+                                        orig,
+                                        [l1[idx], l2[idx], l3[idx], l4[idx]],
+                                        lockedCols,
+                                        displayHeaders
+                                    );
+                                    const hasChanges = displayHeaders.some(h =>
+                                        h !== UPDATE_DATE_COL &&
+                                        String(merged[h] || "").trim() !== String(orig[h] || "").trim()
+                                    );
+                                    merged[UPDATE_DATE_COL] = hasChanges ? `${today} Corrected (4R)` : `${today} Confirmed (4R)`;
+                                    return merged;
+                                });
+
+                                let newItemsRaw = [];
+                                if (!ignoreNewItems && r1 && r1.data) newItemsRaw = Array.isArray(r1.data) ? [] : (r1.data.new_items || []);
+
+                                const newItems = newItemsRaw.map(item => {
+                                    item[UPDATE_DATE_COL] = `${today} New Item`;
+                                    return item;
+                                });
+
+                                setProcessedBatches(prev => [...prev, {
+                                    brand: brandName,
+                                    original: chunk,
+                                    corrected: corrected,
+                                    newItems: newItems,
+                                    grounding: r1.grounding,
+                                    mode: '4-round'
+                                }]);
+                            }
+                        }
+                    }
+
+                    setProgress({ percent: 100, status: "Completed" });
+                    showToast(`Audit Completed in ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
+
+                } catch (error) {
+                    console.error(error);
+                    showToast(`Processing Failed: ${error.message}`, "error");
+                    setProgress({ percent: 0, status: "Error: " + error.message });
+                } finally {
+                    setIsProcessing(false);
+                }
+            };
+
+            const handleCopy = () => {
+                // Merge AI results back into full rawRows
+                let data = [...rawRows];
+                if (processedBatches.length > 0) {
+                    const correctedMap = new Map();
+                    processedBatches.forEach(b => {
+                        b.corrected.forEach(row => {
+                            const model = row['Model #'] || '';
+                            if (model) correctedMap.set(model.toLowerCase(), row);
+                        });
+                    });
+                    // Update existing rows with AI corrections
+                    data = rawRows.map(row => {
+                        const model = (row['Model #'] || '').toLowerCase();
+                        return correctedMap.get(model) || row;
+                    });
+                    // Add any new items from AI (if ignoreNewItems is false)
+                    if (!ignoreNewItems) {
+                        processedBatches.forEach(b => {
+                            b.newItems.forEach(newRow => {
+                                const model = (newRow['Model #'] || '').toLowerCase();
+                                if (!data.some(r => (r['Model #'] || '').toLowerCase() === model)) {
+                                    data.push(newRow);
+                                }
+                            });
+                        });
+                    }
+                }
+                if (data.length === 0) return showToast("No data to copy", "error");
+                let tsv = displayHeaders.join('\t') + '\n';
+                data.forEach(row => {
+                    tsv += displayHeaders.map(h => sanitizeForExport(row[h])).join('\t') + '\n';
+                });
+                const ta = document.createElement('textarea');
+                ta.value = tsv;
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); showToast(`Copied ${data.length} rows to Clipboard`); }
+                catch (e) { showToast("Copy failed", "error"); }
+                document.body.removeChild(ta);
+            };
+
+            const handleDownloadCSV = () => {
+                // Merge AI results back into full rawRows
+                let data = [...rawRows];
+                if (processedBatches.length > 0) {
+                    const correctedMap = new Map();
+                    processedBatches.forEach(b => {
+                        b.corrected.forEach(row => {
+                            const model = row['Model #'] || '';
+                            if (model) correctedMap.set(model.toLowerCase(), row);
+                        });
+                    });
+                    data = rawRows.map(row => {
+                        const model = (row['Model #'] || '').toLowerCase();
+                        return correctedMap.get(model) || row;
+                    });
+                    if (!ignoreNewItems) {
+                        processedBatches.forEach(b => {
+                            b.newItems.forEach(newRow => {
+                                const model = (newRow['Model #'] || '').toLowerCase();
+                                if (!data.some(r => (r['Model #'] || '').toLowerCase() === model)) {
+                                    data.push(newRow);
+                                }
+                            });
+                        });
+                    }
+                }
+                if (data.length === 0) return;
+                let csv = displayHeaders.map(h => `"${h}"`).join(',') + '\n';
+                data.forEach(row => {
+                    csv += displayHeaders.map(h => {
+                        const val = sanitizeForExport(row[h]).replace(/"/g, '""');
+                        return `"${val}"`;
+                    }).join(',') + '\n';
+                });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Audit_Result_${new Date().toISOString().slice(0, 10)}.csv`;
+                a.click();
+            };
+
+            const handleDownloadLogs = (all = false) => {
+                if (logHistory.length === 0) return showToast("No logs available", "error");
+                let content = "";
+                if (all) {
+                    content = "=== AI DATA VALIDATOR FULL LOGS ===\n";
+                    content += `Date: ${new Date().toLocaleString()}\n`;
+                    content += `Total Entries: ${logHistory.length}\n\n`;
+                    [...logHistory].reverse().forEach((log, i) => {
+                        content += `[Record #${i + 1}] --------------------------------------------------\n`;
+                        content += `Time: ${log.timestamp}\n`;
+                        content += `Brand: ${log.brand}\n`;
+                        content += `Round: ${log.round}\n\n`;
+                        content += `--- PROMPT ---\n${log.prompt}\n\n`;
+                        content += `--- RESPONSE ---\n${JSON.stringify(log.response, null, 2)}\n\n`;
+                    });
+                } else {
+                    const log = logHistory[logViewer.index];
+                    if (!log) return;
+                    content = logViewer.type === 'prompt' ? log.prompt : JSON.stringify(log.response, null, 2);
+                }
+                const blob = new Blob([content], { type: 'text/plain;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = all ? "Full_Logs.txt" : `Log_${logViewer.type}_${Date.now()}.txt`;
+                a.click();
+            };
+
+            return (
+                <div className="min-h-screen pb-20">
+                    {toast && (
+                        <div className={`fixed top-5 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-2xl font-bold text-white text-sm toast-enter flex items-center gap-2 ${toast.type === 'error' ? 'bg-red-500' : 'bg-emerald-600'}`}>
+                            <span>{toast.type === 'error' ? '⚠️' : '✅'}</span>
+                            {toast.message}
+                        </div>
+                    )}
+
+                    {/* Header */}
+                    <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+                        <div className="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-blue-600 text-white p-2 rounded-lg font-black text-xl tracking-tighter">AI</div>
+                                <div>
+                                    <h1 className="text-xl font-bold text-slate-800 tracking-tight">Data Validator <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200">BRIDGE API</span></h1>
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Full Feature Version v3.5.2</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </header>
+
+                    <div className="container mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                        {/* Sidebar: Controls */}
+                        <aside className="lg:col-span-3 space-y-6">
+
+                            {/* Panel 1: Data Source */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4 animate-fade-in">
+                                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">PT 機型整理</h3>
+
+                                {/* Connect Button */}
+                                <button
+                                    onClick={() => { setScriptUrl(GAS_URLS['PT 機型整理']); setTimeout(handleConnect, 100); }}
+                                    disabled={isConnecting || isConnected}
+                                    className={`w-full py-2 rounded-lg text-xs font-bold transition-all shadow-sm ${isConnected ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                                >
+                                    {isConnecting ? '...' : isConnected ? `✓ CONNECTED (${sheetNames.length} sheets)` : 'CONNECT PT 機型整理'}
+                                </button>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase">Target Region</label>
+                                    <div className="grid grid-cols-4 gap-1">
+                                        {['USA', 'DEU', 'TW', 'JP'].map(c => (
+                                            <button
+                                                key={c}
+                                                onClick={() => setSelectedCountry(c)}
+                                                className={`py-2 text-xs font-bold rounded-lg transition-all ${selectedCountry === c ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                                            >
+                                                {c}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase">Select Sheet</label>
+                                    <select
+                                        value={selectedSheet}
+                                        onChange={e => handleLoadSheet(e.target.value)}
+                                        disabled={!isConnected}
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 font-medium"
+                                    >
+                                        <option value="">{isConnected ? "Select a sheet..." : "Connect first..."}</option>
+                                        {sheetNames.map(n => <option key={n} value={n}>{n}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Panel: PT Data Load */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4 animate-fade-in">
+                                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">PT Data Load</h3>
+
+                                {/* Connect Button */}
+                                <button
+                                    onClick={handleConnectPtData}
+                                    disabled={isPtDataLoading || ptDataSheets.length > 0}
+                                    className={`w-full py-2 rounded-lg text-xs font-bold transition-all shadow-sm ${ptDataSheets.length > 0 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-violet-600 text-white hover:bg-violet-700'}`}
+                                >
+                                    {isPtDataLoading ? '...' : ptDataSheets.length > 0 ? `✓ CONNECTED (${ptDataSheets.length} sheets)` : 'CONNECT PT DATA'}
+                                </button>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase">Select PT DATA Sheet</label>
+                                    <select
+                                        value={selectedPtDataSheet}
+                                        onChange={e => handleLoadPtDataFromGS(e.target.value)}
+                                        disabled={isPtDataLoading || ptDataSheets.length === 0}
+                                        className="w-full bg-violet-50 border border-violet-200 text-violet-700 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50 font-medium"
+                                    >
+                                        <option value="">{ptDataSheets.length > 0 ? "Select a sheet..." : "Connect first..."}</option>
+                                        {ptDataSheets.map(n => <option key={n} value={n}>{n.replace('Data_', 'PT Data - ')}</option>)}
+                                    </select>
+                                    <p className="text-[9px] text-slate-400">Load PT DATA from GS to fill missing info & prices.</p>
+                                </div>
+                                {isPtDataLoading && (
+                                    <div className="text-xs text-blue-600 font-bold flex items-center gap-1">
+                                        <span className="animate-spin">⟳</span> Loading...
+                                    </div>
+                                )}
+                                {ptData.length > 0 && !isPtDataLoading && (
+                                    <div className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                                        <span>✓</span> {ptData.length} rows loaded
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Panel 2: Config */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Configuration</h3>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase">Prompt Preset</label>
+                                    <select
+                                        value={selectedPromptKey}
+                                        onChange={e => setSelectedPromptKey(e.target.value)}
+                                        className="w-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-lg p-2 font-bold outline-none"
+                                    >
+                                        {Object.keys(PROMPT_URLS).map(k => <option key={k} value={k}>{k}</option>)}
+                                    </select>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase">Locked Columns</label>
+                                    <input
+                                        type="text"
+                                        value={excludedColumns}
+                                        onChange={e => setExcludedColumns(e.target.value)}
+                                        className="w-full bg-slate-50 border border-slate-200 text-slate-600 text-xs rounded-lg p-2 font-mono"
+                                        placeholder="e.g. A,B,T"
+                                    />
+                                    <p className="text-[9px] text-slate-400">Values in these columns will NOT be changed by AI.</p>
+                                </div>
+
+                                <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                                    <input
+                                        type="checkbox"
+                                        id="ignoreNewItems"
+                                        checked={ignoreNewItems}
+                                        onChange={e => setIgnoreNewItems(e.target.checked)}
+                                        className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                                    />
+                                    <label htmlFor="ignoreNewItems" className="text-xs text-slate-600 font-medium">
+                                        不接受 AI 新增機型
+                                    </label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="ptOnlyMode"
+                                        checked={ptOnlyMode}
+                                        onChange={e => setPtOnlyMode(e.target.checked)}
+                                        className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                                    />
+                                    <label htmlFor="ptOnlyMode" className="text-xs text-slate-600 font-medium">
+                                        只驗證 PT 匯入機型 {ptImportedModels.size > 0 && <span className="text-emerald-600">({ptImportedModels.size})</span>}
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Action Button */}
+                            <button
+                                onClick={startAudit}
+                                disabled={isProcessing || !selectedSheet}
+                                className={`w-full py-4 rounded-xl shadow-lg font-black text-sm tracking-wide transition-all transform hover:scale-[1.02] active:scale-[0.98] ${isProcessing
+                                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-blue-200'
+                                    }`}
+                            >
+                                {isProcessing ? (
+                                    <div className="flex flex-col items-center gap-1">
+                                        <div className="w-4 h-4 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin"></div>
+                                        <span className="text-[10px] font-mono">{progress.status}</span>
+                                    </div>
+                                ) : (
+                                    <span className="flex items-center justify-center gap-2">
+                                        <span>START AUDIT PROCESS</span>
+                                        <span>➔</span>
+                                    </span>
+                                )}
+                            </button>
+                        </aside>
+
+                        {/* Main Content: Table & Logs */}
+                        <main className="lg:col-span-9 space-y-6">
+
+                            {/* Toolbar */}
+                            <div className="bg-white rounded-xl p-2 border border-slate-200 shadow-sm flex flex-wrap gap-2 items-center justify-between">
+                                <div className="flex gap-2">
+                                    <button onClick={() => setLogViewer(p => ({ ...p, isOpen: !p.isOpen }))} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-bold transition-colors">
+                                        {logViewer.isOpen ? 'Hide Logs' : 'Show Logs'}
+                                    </button>
+                                    <div className="h-8 w-px bg-slate-200 mx-1"></div>
+                                    <button onClick={() => handleDownloadLogs(false)} disabled={logHistory.length === 0} className="px-4 py-2 bg-amber-50 text-amber-600 border border-amber-100 hover:bg-amber-100 rounded-lg text-xs font-bold transition-colors disabled:opacity-50">
+                                        DL Current Log
+                                    </button>
+                                    <button onClick={() => handleDownloadLogs(true)} disabled={logHistory.length === 0} className="px-4 py-2 bg-orange-50 text-orange-600 border border-orange-100 hover:bg-orange-100 rounded-lg text-xs font-bold transition-colors disabled:opacity-50">
+                                        DL All Logs
+                                    </button>
+                                </div>
+
+                                <div className="flex gap-2">
+                                    <button onClick={handleDownloadCSV} disabled={processedBatches.length === 0} className="px-4 py-2 bg-purple-50 text-purple-600 border border-purple-100 hover:bg-purple-100 rounded-lg text-xs font-bold transition-colors disabled:opacity-50">
+                                        Download CSV
+                                    </button>
+                                    <button onClick={handleCopy} className="px-5 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg text-xs font-bold shadow-md transition-colors flex items-center gap-2">
+                                        <span>Copy Data</span>
+                                        <span className="bg-white/20 px-1.5 rounded text-[9px]">Sanitized</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Data Table */}
+                            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col h-[600px] relative">
+                                {/* Table Header Status */}
+                                <div className="bg-slate-50 border-b border-slate-200 px-4 py-2 flex justify-between items-center">
+                                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        {processedBatches.length > 0 ? 'Audit Results' : 'Preview / Raw Data'}
+                                    </div>
+                                    {isProcessing && (
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-32 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                                <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${progress.percent}%` }}></div>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-blue-600">{progress.percent}%</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex-1 overflow-auto bg-white scrollbar-thin">
+                                    <table className="w-full text-[11px] border-collapse min-w-[1000px]">
+                                        <thead className="bg-slate-50 sticky top-0 z-10 shadow-sm">
+                                            <tr>
+                                                {displayHeaders.map(h => (
+                                                    <th key={h} className="p-3 text-left font-bold text-slate-600 border-r border-slate-200 last:border-0 whitespace-nowrap bg-slate-50">
+                                                        {h}
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100">
+                                            {processedBatches.length === 0 ? (
+                                                rawRows.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan={displayHeaders.length} className="p-20 text-center text-slate-300 font-bold uppercase tracking-widest">
+                                                            No Data Loaded
+                                                        </td>
+                                                    </tr>
+                                                ) : (
+                                                    rawRows.map((row, i) => (
+                                                        <tr key={i} className="hover:bg-slate-50 transition-colors">
+                                                            {displayHeaders.map(h => (
+                                                                <td key={h} className="p-2 border-r border-slate-100 text-slate-600 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
+                                                                    {row[h]}
+                                                                </td>
+                                                            ))}
+                                                        </tr>
+                                                    ))
+                                                )
+                                            ) : (
+                                                processedBatches.map((batch, bIdx) => (
+                                                    <React.Fragment key={bIdx}>
+                                                        {/* Brand Header */}
+                                                        <tr className="bg-slate-100 border-y border-slate-200">
+                                                            <td colSpan={displayHeaders.length} className="px-4 py-1.5 font-black text-slate-600 text-[10px] uppercase tracking-wider flex items-center gap-2">
+                                                                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                                                {batch.brand}
+                                                                {batch.grounding?.length > 0 && (
+                                                                    <span className="ml-auto text-[9px] font-normal text-slate-400">
+                                                                        Sources: {batch.grounding.length}
+                                                                    </span>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                        {/* Corrected Rows */}
+                                                        {batch.corrected.map((row, rIdx) => (
+                                                            <tr key={`c-${bIdx}-${rIdx}`} className="hover:bg-slate-50 group">
+                                                                {displayHeaders.map(h => {
+                                                                    const origVal = String(batch.original[rIdx]?.[h] || "").trim();
+                                                                    const newVal = String(row[h] || "").trim();
+                                                                    const isDiff = origVal !== newVal && h !== UPDATE_DATE_COL;
+                                                                    return (
+                                                                        <td key={h} className={`p-2 border-r border-slate-100 whitespace-nowrap ${isDiff ? 'bg-red-50 text-red-700 font-bold border-red-100' : 'text-slate-600'}`}>
+                                                                            {row[h]}
+                                                                        </td>
+                                                                    );
+                                                                })}
+                                                            </tr>
+                                                        ))}
+                                                        {/* New Items */}
+                                                        {batch.newItems.map((row, nIdx) => (
+                                                            <tr key={`n-${bIdx}-${nIdx}`} className="bg-blue-50/40 hover:bg-blue-50">
+                                                                {displayHeaders.map(h => (
+                                                                    <td key={h} className="p-2 border-r border-slate-100/50 text-blue-700 font-bold whitespace-nowrap">
+                                                                        {row[h]}
+                                                                    </td>
+                                                                ))}
+                                                            </tr>
+                                                        ))}
+                                                    </React.Fragment>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* Log Viewer Panel */}
+                            {logViewer.isOpen && logHistory.length > 0 && (
+                                <div className="bg-slate-900 rounded-xl p-0 overflow-hidden shadow-2xl animate-fade-in border border-slate-800">
+                                    <div className="bg-slate-800 px-4 py-3 flex justify-between items-center border-b border-slate-700">
+                                        <div className="flex items-center gap-4">
+                                            <h3 className="text-blue-400 font-black text-xs uppercase tracking-widest">System Logs</h3>
+                                            <div className="flex bg-slate-900 rounded-lg p-0.5">
+                                                <button onClick={() => setLogViewer(p => ({ ...p, type: 'prompt' }))} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${logViewer.type === 'prompt' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Prompt</button>
+                                                <button onClick={() => setLogViewer(p => ({ ...p, type: 'response' }))} className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${logViewer.type === 'response' ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-white'}`}>Response</button>
+                                            </div>
+                                            <select
+                                                value={logViewer.index}
+                                                onChange={e => setLogViewer(p => ({ ...p, index: Number(e.target.value) }))}
+                                                className="bg-slate-900 border border-slate-700 text-slate-300 text-[10px] rounded px-2 py-1 outline-none focus:border-blue-500 max-w-[200px]"
+                                            >
+                                                {logHistory.map((l, i) => (
+                                                    <option key={l.id} value={i}>{l.timestamp} - {l.brand} - {l.round}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <button onClick={() => setLogViewer(p => ({ ...p, isOpen: false }))} className="text-slate-400 hover:text-white transition-colors">✕</button>
+                                    </div>
+                                    <div className="p-4 overflow-x-auto">
+                                        <pre className="text-[10px] font-mono text-slate-300 whitespace-pre-wrap leading-relaxed max-h-[300px] scrollbar-thin">
+                                            {logViewer.type === 'prompt'
+                                                ? logHistory[logViewer.index]?.prompt
+                                                : JSON.stringify(logHistory[logViewer.index]?.response, null, 2)
+                                            }
+                                        </pre>
+                                    </div>
+                                </div>
+                            )}
+
+                        </main>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>

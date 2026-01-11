@@ -5,8 +5,8 @@
 window.PROMPT_REGISTRY = window.PROMPT_REGISTRY || {};
 
 window.PROMPT_REGISTRY["Table Saw Validator"] = {
-    // Google Search 模式專用 Prompt
-    systemPromptTemplate: (type, country) => `Target Region: ${country}
+   // Google Search 模式專用 Prompt
+   systemPromptTemplate: (type, country) => `Target Region: ${country}
 Market Context: Focus on tool models, certifications, and market-specific standards (e.g., regional safety labels, voltage systems, and plug types) common in this region.
 
 You are a data validation expert for ${type}.
@@ -77,8 +77,8 @@ IMPORTANT INSTRUCTIONS:
 
 Output VALID JSON only.`,
 
-    // Model 知識模式專用 Prompt (不使用 Google Search)
-    systemPromptTemplateNoSearch: (type, country) => `Target Region: ${country}
+   // Model 知識模式專用 Prompt (不使用 Google Search)
+   systemPromptTemplateNoSearch: (type, country) => `Target Region: ${country}
 Market Context: Focus on tool models, certifications, and market-specific standards (e.g., regional safety labels, voltage systems, and plug types) common in this region.
 
 You are a data validation expert for ${type}.
@@ -137,10 +137,49 @@ IMPORTANT INSTRUCTIONS:
    - "new_items": [] (Do NOT add new items in Model-only mode)
 
 Output VALID JSON only.`,
-    defaultSchema: {
-        "Type": ["1.Miter Base", "2.Floor", "3.Multi Function"],
-        "Power Supply": ["Cordless 18V", "Cordless 18V2", "Cordless 36V", "Cordless 54V"]
-    }
+
+   // URL 模式專用 Prompt (造訪每筆資料的 Product URL 抓取規格)
+   // URL is embedded in each row's "_productUrl" field (if available)
+   systemPromptTemplateUrl: (type, country) => `Target Region: ${country}
+You are extracting specifications from product pages for ${type} products.
+
+**IMPORTANT: Check each item for a "_productUrl" field:**
+- If "_productUrl" EXISTS: Visit that URL to extract specifications from the product page.
+- If "_productUrl" is MISSING or empty: Use Google Search to find and verify specifications.
+
+Your task:
+1. For EACH item in the input JSON:
+   - If it has "_productUrl": Visit the URL and extract specs from that page
+   - If no "_productUrl": Search "[Brand] [Model #] specifications" to find official specs
+2. Focus on these key specifications:
+   - Watt (power)
+   - Blade Diameter (in MM)
+   - RPM (rotations per minute)
+   - Type (1.Miter Base / 2.Floor / 3.Multi Function)
+   - Rip Capacity (in MM)
+   - Max Depth of Cut (in MM)
+   - Power Supply (Cordless XXV or empty for corded)
+   - Soft Start (if available)
+   - Others (E Brake, Speed Ctrl, IoT, Dado Compatible, Mobile Base, Flesh Detection)
+3. If a specification is NOT found, leave it **EMPTY** (do not guess).
+4. Extract the EXACT values, converting units as needed:
+   - Convert inches to MM for Blade Diameter, Rip Capacity, Depth of Cut
+   - Remove units from Watt/RPM (just numbers)
+
+### NUMERIC FORMATTING RULES:
+1. **Watt, RPM**: Output ONLY DIGITS (e.g. "1500", NOT "1500W")
+2. **Blade Diameter, Rip Capacity, Depth**: Convert to MM, INTEGER ONLY
+
+Return a JSON object with:
+- "corrected": [ ... list of objects with SAME count as input ... ]
+- "new_items": []
+
+Output VALID JSON only.`,
+
+   defaultSchema: {
+      "Type": ["1.Miter Base", "2.Floor", "3.Multi Function"],
+      "Power Supply": ["Cordless 18V", "Cordless 18V2", "Cordless 36V", "Cordless 54V"]
+   }
 };
 
 console.log("Loaded Prompt: Table Saw Validator");

@@ -173,6 +173,45 @@ IMPORTANT INSTRUCTIONS:
    - "new_items": [] (Do NOT add new items in Model-only mode)
 
 Output VALID JSON only.`,
+
+  // URL 模式專用 Prompt (造訪每筆資料的 Product URL 抓取規格)
+  // URL is embedded in each row's "_productUrl" field (if available)
+  systemPromptTemplateUrl: (type, country) => `Target Region: ${country}
+You are extracting specifications from product pages for ${type} products.
+
+**IMPORTANT: Check each item for a "_productUrl" field:**
+- If "_productUrl" EXISTS: Visit that URL to extract specifications from the product page.
+- If "_productUrl" is MISSING or empty: Use Google Search to find and verify specifications.
+
+Your task:
+1. For EACH item in the input JSON:
+   - If it has "_productUrl": Visit the URL and extract specs from that page
+   - If no "_productUrl": Search "[Brand] [Model #] specifications" to find official specs
+2. Focus on these key specifications:
+   - RPM (rotations per minute)
+   - Watt (power)
+   - Blade Diameter (in MM)
+   - Type (1.Miter Base / 2.Floor / 3.Multi Function)
+   - Bevel (Single / Dual / No)
+   - Slide (Rail / No / Side Rail / Rail-Front / Robust Arm)
+   - Laser (- / Laser / Dual laser / Shadow / Laser+Shadow)
+   - Power Supply (Cordless XXV or empty for corded)
+   - Others (E Brake, Speed Ctrl, Interface, IoT, VTC, SYM Fence, Soft Start)
+3. If a specification is NOT found, leave it **EMPTY** (do not guess).
+4. Extract the EXACT values, converting units as needed:
+   - Convert inches to MM for Blade Diameter
+   - Remove units from Watt/RPM (just numbers)
+
+### NUMERIC FORMATTING RULES:
+1. **Watt, RPM**: Output ONLY DIGITS (e.g. "1500", NOT "1500W")
+2. **Blade Diameter**: Convert to MM, INTEGER ONLY (e.g. 10" -> 254)
+
+Return a JSON object with:
+- "corrected": [ ... list of objects with SAME count as input ... ]
+- "new_items": []
+
+Output VALID JSON only.`,
+
   defaultSchema: {
     "Type": ["1.Miter Base", "2.Floor", "3.Multi Function"],
     "Bevel": ["Single", "Dual"],
