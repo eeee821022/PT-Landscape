@@ -1760,6 +1760,39 @@
         <p id="loadingTip" class="text-sm text-gray-400 mt-4 max-w-md text-center px-4"></p>
     </div>
 
+    <!-- Password Input Overlay -->
+    <div id="passwordOverlay"
+        class="fixed inset-0 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center z-[10000]"
+        style="display: none;">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-96 animate-fade-in">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-lock text-2xl text-indigo-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">PT Landscape</h2>
+                <p class="text-sm text-gray-500 mt-1">Enter Access Key to Continue</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <input type="password" id="passwordInput" placeholder="Access Key"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-center text-lg font-mono focus:border-indigo-500 focus:outline-none transition-colors"
+                        onkeydown="if(event.key==='Enter') submitPassword()">
+                </div>
+                <p class="text-center text-sm text-gray-400">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-1"></i>
+                    Hint: <span class="font-mono bg-gray-100 px-2 py-0.5 rounded">557XXXXX0</span>
+                </p>
+                <button onclick="submitPassword()"
+                    class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors shadow-lg">
+                    <i class="fas fa-unlock mr-2"></i>Access
+                </button>
+                <p id="passwordError" class="text-center text-red-500 text-sm hidden">
+                    <i class="fas fa-exclamation-circle mr-1"></i> Incorrect Key
+                </p>
+            </div>
+        </div>
+    </div>
+
     <!-- 格子視圖 -->
     <div class="grid-wrapper" id="gridWrapper" style="display: none;">
         <div class="platform-column" id="platformColumn">
@@ -1880,6 +1913,49 @@
 
         // PT DATA 平台 Google Sheets (價格資料) - 取代 GitHub CSV
         const GS_DATA_URL = 'https://script.google.com/macros/s/AKfycbxayHvvpWggMF8yEtYJxhYjoCe8kR65SxIQwQkHbc7S2XCRs-VxOXWzGEgKClG56vQfLA/exec';
+
+        // GS API Password (get from localStorage, show overlay if not set)
+        const GS_PASSWORD_HINT = "557XXXXX0";
+        let gsApiKeyCache = localStorage.getItem('GS_API_KEY') || '';
+
+        function getGSApiKey() {
+            return gsApiKeyCache;
+        }
+
+        function showPasswordOverlay() {
+            document.getElementById('passwordOverlay').style.display = 'flex';
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('passwordInput').focus();
+        }
+
+        function submitPassword() {
+            const input = document.getElementById('passwordInput');
+            const key = input.value.trim();
+            const errorEl = document.getElementById('passwordError');
+
+            if (key) {
+                gsApiKeyCache = key;
+                localStorage.setItem('GS_API_KEY', key);
+                document.getElementById('passwordOverlay').style.display = 'none';
+                errorEl.classList.add('hidden');
+                // Start loading
+                initApp();
+            } else {
+                errorEl.classList.remove('hidden');
+                input.classList.add('border-red-500');
+            }
+        }
+
+        // Check password on page load
+        function checkPasswordAndInit() {
+            const savedKey = localStorage.getItem('GS_API_KEY');
+            if (savedKey) {
+                gsApiKeyCache = savedKey;
+                initApp();
+            } else {
+                showPasswordOverlay();
+            }
+        }
 
         // GitHub Configuration (備用)
         const REPO_OWNER = 'eeee821022';
@@ -2107,7 +2183,7 @@
                     if (anyClosed) applyFilters();
                 }
             });
-            initApp(); // Initialize GitHub file list
+            checkPasswordAndInit(); // Check password first, then initialize
         });
 
         /* =========================================
@@ -2123,7 +2199,7 @@
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-                const response = await fetch(`${GS_DATA_URL}?action=getSheets`, {
+                const response = await fetch(`${GS_DATA_URL}?action=getSheets&key=${getGSApiKey()}`, {
                     redirect: 'follow',
                     signal: controller.signal
                 });
@@ -2191,7 +2267,7 @@
                     dataFromSource = await loadCSV(csvUrl);
                 } else {
                     // 使用 GS_DATA_URL 載入分頁資料
-                    const res = await fetch(`${GS_DATA_URL}?action=getData&sheet=${encodeURIComponent(source)}`, { redirect: 'follow' });
+                    const res = await fetch(`${GS_DATA_URL}?action=getData&sheet=${encodeURIComponent(source)}&key=${getGSApiKey()}`, { redirect: 'follow' });
                     dataFromSource = await res.json();
                     console.log(`GS Data loaded: ${dataFromSource.length} rows from ${source}`);
 
@@ -2633,7 +2709,7 @@
         async function populateSheetDropdown() {
             const sel = document.getElementById('gsSheetSelect');
             try {
-                const res = await fetch(`${GS_URL}?action=getSheets`, { redirect: 'follow' });
+                const res = await fetch(`${GS_URL}?action=getSheets&key=${getGSApiKey()}`, { redirect: 'follow' });
                 const sheets = await res.json();
                 // Bug #5: Only show sheets with "List" in name (e.g., "MTS List", "TBS List")
                 const listSheets = sheets.filter(n => n.includes('List'));
@@ -2662,7 +2738,7 @@
             if (!sheet) return [];
             updateGSStatus('loading', '...');
             try {
-                const res = await fetch(`${GS_URL}?action=getData&sheet=${encodeURIComponent(sheet)}`, { redirect: 'follow' });
+                const res = await fetch(`${GS_URL}?action=getData&sheet=${encodeURIComponent(sheet)}&key=${getGSApiKey()}`, { redirect: 'follow' });
                 const data = await res.json();
                 updateGSStatus('success', `${data.length}`);
                 return data;
