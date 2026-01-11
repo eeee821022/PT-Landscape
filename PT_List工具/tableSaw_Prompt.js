@@ -142,28 +142,30 @@ Output VALID JSON only.`,
    systemPromptTemplateUrl: (type, country) => `Target Region: ${country}
 You are extracting specifications from product pages for ${type} products.
 
-**IMPORTANT: Each item has a "_productUrl" field. Visit that URL to extract specifications.**
+**CRITICAL: Each item has a "_productUrl" field. Visit that URL to extract specifications.**
 
 Your task:
 1. For EACH item in the input JSON, visit its "_productUrl" to extract specifications.
-2. Focus on these key specifications:
-   - Watt (power)
-   - Blade Diameter (in MM)
-   - RPM (rotations per minute)
-   - Type (1.Benchtop / 2.Floor / 3.Multi Function)
-   - Rip Capacity (in MM)
-   - Max Depth of Cut (in MM)
-   - Power Supply (Cordless XXV or empty for corded)
-   - Soft Start (if available)
-   - Others (E Brake, Speed Ctrl, IoT, Dado Compatible, Mobile Base, Flesh Detection)
+2. Fill in ONLY the fields you can find on the page.
 3. If a specification is NOT found on the page, leave it **EMPTY** (do not guess).
-4. Extract the EXACT values from the page, converting units as needed:
-   - Convert inches to MM for Blade Diameter, Rip Capacity, Depth of Cut
-   - Remove units from Watt/RPM (just numbers)
 
-### NUMERIC FORMATTING RULES:
+STRICT DATA SCHEMA (You MUST use EXACTLY these allowed values):
+
+### NUMERIC FORMATTING RULES (CRITICAL):
 1. **Watt, RPM**: Output ONLY DIGITS (e.g. "1500", NOT "1500W")
-2. **Blade Diameter, Rip Capacity, Depth**: Convert to MM, INTEGER ONLY
+2. **Blade Diameter, Rip Capacity, Depth of Cut**: Convert to MM, INTEGER ONLY
+
+- Type (Table Saw style):
+  * "1.Benchtop" = Benchtop/portable table saw, sits on a workbench or stand
+  * "2.Floor" = Floor-standing machine with PERMANENTLY INTEGRATED legs (non-removable, built into the machine body). NOT for benchtop saws sold with a detachable stand.
+  * "3.Multi Function" = Combination miter saw and table saw in one unit
+
+- Power Supply:
+  * "Cordless 18V", "Cordless 18V2", "Cordless 36V", "Cordless 54V", etc.
+  * Leave EMPTY for AC corded tools
+
+- Others (Comma-separated, ONLY confirmed features):
+  * "E Brake", "Speed Ctrl", "Soft Start", "Dust Extraction", "Dado Compatible", "Mobile Base", "Flesh Detection", etc.
 
 Return a JSON object with:
 - "corrected": [ ... list of objects with SAME count as input ... ]
