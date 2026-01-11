@@ -1,5 +1,13 @@
+# Credentials
+*.json
+
+# Private Tools Folder
+PT_DATA工具/
+
+# Private Scripts
+PT_DATA_AppsScript.gs
+PT_List_AppsScripts.gs
+
+# System files
 __pycache__/
 *.pyc
-.env
-.vscode/
-Project_Docs/
