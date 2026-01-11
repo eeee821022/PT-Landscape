@@ -551,33 +551,33 @@ Output ONLY valid JSON. Start with '['.`;
                         retryRound++;
                     }
 
-                    // Update RAW ROWS directly with results
-                    const newRawRows = [...rawRows];
-                    const batchResults = [];
+                    // Update RAW ROWS directly with results (AI Processed Rows)
+                    let newRawRows = [...rawRows];
 
+                    // 1. Merge AI Results
                     allBatches.filter(b => b.status === 'success').forEach(batch => {
-                        const corrected = batch.rows.map((origRow, idx) => {
-                            // Match by INDEX
+                        batch.rows.forEach((origRow, idx) => {
                             const match = batch.results && batch.results[idx] ? batch.results[idx] : null;
                             const updatedRow = validateAndMerge(origRow, match);
 
-                            // Update MAIN rawRows using original index
+                            // Update by Index
                             if (updatedRow._originalIndex !== undefined) {
                                 newRawRows[updatedRow._originalIndex] = { ...updatedRow };
-                                // Clean up internal index from the row (optional, but cleaner)
-                                delete newRawRows[updatedRow._originalIndex]._originalIndex;
                             }
-                            return updatedRow;
                         });
-                        batchResults.push({ corrected });
                     });
 
+                    // 2. Global Validation Pass (Run on ALL rows to Case-Correct/Normalize everything)
+                    // This ensures rows that were SKIPPED by AI still get Brand/Model normalization
+                    newRawRows = newRawRows.map(row => validateAndMerge(row, null));
+
                     setRawRows(newRawRows);
-                    setProcessedBatches(prev => [...prev, ...batchResults]);
+                    // setProcessedBatches is less important now as we use rawRows directly, but keep for consistency if needed?
+                    // Actually processedBatches was used for old logic. We can clear it or just ignore.
 
                     const failedCount = allBatches.filter(b => b.status === 'failed').length;
-                    setProgress({ percent: 100, status: `Done! ${completedCount}/${totalBatches} OK${failedCount > 0 ? `, ${failedCount} failed` : ''}` });
-                    showToast(`Audit finished! ${completedCount}/${totalBatches} batches`);
+                    setProgress({ percent: 100, status: `Done! ${completedCount}/${totalBatches} batches processed. Global validation applied.` });
+                    showToast(`Audit finished! Validation applied to ${newRawRows.length} rows.`);
                 } catch (error) {
                     showToast("Audit Error: " + error.message, "error");
                 } finally {
