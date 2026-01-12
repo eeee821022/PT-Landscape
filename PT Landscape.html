@@ -4292,9 +4292,6 @@
                             title: { display: true, text: document.getElementById('scatterYAxis').value },
                             type: 'linear',
                             ticks: {
-                                font: {
-                                    size: chartSettings.yAxisFontSize || 12
-                                },
                                 callback: (v) => {
                                     const idx = Math.round(v);
                                     return yCategories[idx] !== undefined ? yCategories[idx] : '';
@@ -5092,10 +5089,6 @@
                         <label>Point Size (px): <span id="valPointRadius">6</span></label>
                         <input type="range" id="setPointRadius" min="2" max="20" value="6">
                     </div>
-                    <div class="setting-item">
-                        <label>Y-Axis Font: <span id="valFsYAxis">12</span>px</label>
-                        <input type="range" id="setFsYAxis" min="10" max="18" value="12">
-                    </div>
                 </div>
 
                 <!-- Grid/Landscape Settings -->
@@ -5209,28 +5202,13 @@
 
                 // Scatter Bindings
                 bindInput('RowHeight', (val) => {
-                    if (typeof chartSettings !== 'undefined') {
-                        chartSettings.rowHeight = parseInt(val);
-                        if (typeof updateScatterChart === 'function') updateScatterChart();
-                    }
+                    if (typeof chartSettings !== 'undefined') chartSettings.rowHeight = parseInt(val);
                 });
                 bindInput('MinHeight', (val) => {
-                    if (typeof chartSettings !== 'undefined') {
-                        chartSettings.minHeight = parseInt(val);
-                        if (typeof updateScatterChart === 'function') updateScatterChart();
-                    }
+                    if (typeof chartSettings !== 'undefined') chartSettings.minHeight = parseInt(val);
                 });
                 bindInput('PointRadius', (val) => {
-                    if (typeof chartSettings !== 'undefined') {
-                        chartSettings.pointRadius = parseInt(val);
-                        if (typeof updateScatterChart === 'function') updateScatterChart();
-                    }
-                });
-                bindInput('FsYAxis', (val) => {
-                    if (typeof chartSettings !== 'undefined') {
-                        chartSettings.yAxisFontSize = parseInt(val);
-                        if (typeof updateScatterChart === 'function') updateScatterChart();
-                    }
+                    if (typeof chartSettings !== 'undefined') chartSettings.pointRadius = parseInt(val);
                 });
 
                 // Grid CSS Variable Bindings
