@@ -49,6 +49,15 @@
 | **Prompt JS 檔案** | GitHub Pages | 程式自動從 GitHub 抓取 |
 | **PT DATA** | Google Sheets | 透過 GAS API 讀取 |
 
+### 5. 快取強制更新 (Cache Busting)
+- 程式載入 Prompt 時，**必須**加上時間戳參數 `?t=${Date.now()}`。
+- **目的**：強制瀏覽器忽略快取，每次都從 GitHub 下載最新版 AI 指令，避免舊版指令導致錯誤（如德文輸出）。
+
+### 6. 立即部署原則 (Immediate Deployment - CRITICAL)
+- **Prompt 修改完後，必須「立即」上傳 (Push) 到 GitHub。**
+- **嚴禁**只改本地不傳雲端。不上傳等於沒改，使用者根本用不到 (Local changes are useless)。
+- **SOP**: 修改 Code -> `git push` -> 確認 GitHub 更新的時間戳 -> 通知使用者。
+
 ### Prompt GitHub URL
 
 ```
@@ -85,48 +94,10 @@ git push
 
 ## 核心功能
 
-### ✅ 雙模式驗證系統 (v4.0)
+### ✅ 3/4-Round 混合驗證機制 (v5.0 Update)
 
 | 機型類型 | 輪數 | 說明 |
 |---------|------|------|
-| **現有機型** (在 PT DATA 中) | 5 輪 | URL-based + Google Search |
-| **新增機型** (不在 PT DATA 中) | 4 輪 | Google Search + Model Knowledge |
-
-### ✅ 5-Round URL-based 驗證 (現有機型)
-
-| Round | 模式 | URL 選擇 |
-|-------|------|----------|
-| R1 | `[URL:min]` | 最低價 Product URL |
-| R2 | `[URL:max]` | 最高價 Product URL |
-| R3 | `[URL:q3]` | Q3 (75%) 價格 URL |
-| R4 | `[URL:q2]` | Q2 (50%) 價格 URL |
-| R5 | `[Google]` | Google Search 驗證 |
-
-### ✅ URL 不足時的 Fallback 規則
-
-| URL 數量 | 配置 |
-|---------|------|
-| 4 URLs | URL×4 + Search×1 |
-| 3 URLs | URL×3 + Search×2 |
-| 2 URLs | URL×2 + Search×2 + Knowledge×1 |
-| 1 URL | URL×1 + Search×2 + Knowledge×2 |
-
-### ✅ 4-Round 驗證 (新增機型)
-
----
-
-## 核心功能
-
-### ✅ 4 輪平行驗證
-
-| Round | 模式 | 說明 |
-|-------|------|------|
-| R1 | `[Google]` | 使用 Google Search 驗證規格 |
-| R2 | `[Google]` | 使用 Google Search 驗證規格 |
-| R3 | `[Model]` | 使用 AI 內建知識驗證 |
-| R4 | `[Model]` | 使用 AI 內建知識驗證 |
-
-### ✅ 投票機制
 
 - **原始值:** 2 票
 - **R1-R4 各:** 1 票
