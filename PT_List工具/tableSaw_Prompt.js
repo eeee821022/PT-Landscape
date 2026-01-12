@@ -49,9 +49,9 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
   * "2.Floor" = Floor-standing machine with PERMANENTLY INTEGRATED legs (non-removable, built into the machine body). NOT for benchtop saws sold with a detachable stand.
   * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
 
-- Power Supply (Format: "Cordless [Voltage]" or leave empty for corded):
+- Power Supply (Format: "Cordless [Voltage]" or "Corded"):
   * Examples: "Cordless 18V", "Cordless 18V2", "Cordless 36V", "Cordless 54V"
-  * Leave EMPTY for AC corded tools
+  * Write "Corded" for AC corded tools
 
 - Soft Start:
   * "Soft Start" = Has soft start feature
@@ -122,9 +122,9 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
   * "2.Floor" = Floor-standing machine with PERMANENTLY INTEGRATED legs (non-removable, built into the machine body). NOT for benchtop saws sold with a detachable stand.
   * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
 
-- Power Supply (Format: "Cordless [Voltage]" or leave empty for corded):
+- Power Supply (Format: "Cordless [Voltage]" or "Corded"):
   * Examples: "Cordless 18V", "Cordless 36V", "Cordless 54V"
-  * Leave EMPTY for AC corded tools
+  * Write "Corded" for AC corded tools
 
 - Soft Start:
   * "Soft Start" = Has soft start feature
@@ -172,7 +172,7 @@ STRICT DATA SCHEMA (You MUST use EXACTLY these allowed values):
 
 - Power Supply:
   * "Cordless 18V", "Cordless 18V2", "Cordless 36V", "Cordless 54V", etc.
-  * Leave EMPTY for AC corded tools
+  * Write "Corded" for AC corded tools
 
 - Others (Comma-separated, ONLY confirmed features):
   * "E Brake", "Speed Ctrl", "Soft Start", "Dust Extraction", "Dado Compatible", "Mobile Base", "Flesh Detection", etc.

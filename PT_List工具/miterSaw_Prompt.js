@@ -64,9 +64,10 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
   * "Shadow" = LED shadow line system (blade casts shadow on cut line)
   * "Laser+Shadow" = Has both laser AND shadow line systems
 
-- Power Supply (Format: "Cordless [Voltage]" or leave empty for corded):
+- Power Supply (Format: "Cordless [Voltage]" or "Corded"):
   * Examples: "Cordless 18V", "Cordless 18V2" (dual battery), "Cordless 20V", "Cordless 36V", "Cordless 40V", "Cordless 54V", "Cordless 60V"
   * For platform systems: "CAS Cordless 18V" (Cordless Alliance System), "FlexVolt 60V", etc.
+  * Write "Corded" for AC corded tools
 
 
 - Others (Comma-separated list of features, ONLY include features that are CONFIRMED):
@@ -154,9 +155,9 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
   * "Shadow" = LED shadow line system
   * "Laser+Shadow" = Has both laser AND shadow line systems
 
-- Power Supply (Format: "Cordless [Voltage]" or leave empty for corded):
+- Power Supply (Format: "Cordless [Voltage]" or "Corded"):
   * Examples: "Cordless 18V", "Cordless 18V2" (dual battery), "Cordless 20V", "Cordless 36V", "Cordless 40V", "Cordless 54V", "Cordless 60V"
-  * Leave EMPTY for AC corded tools
+  * Write "Corded" for AC corded tools
 
 
 
@@ -227,7 +228,7 @@ STRICT DATA SCHEMA (You MUST use EXACTLY these allowed values):
 
 - Power Supply:
   * "Cordless 18V", "Cordless 18V2", "Cordless 36V", "Cordless 54V", etc.
-  * Leave EMPTY for AC corded tools
+  * Write "Corded" for AC corded tools
 
 - Others (Comma-separated, ONLY confirmed features):
   * "E Brake", "Speed Ctrl", "Soft Start", "Dust Extraction", "VTC", etc.
