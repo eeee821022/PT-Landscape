@@ -114,6 +114,65 @@ git push
 
 ---
 
+### ✅ 3/4-Round 混合驗證機制 (v5.0 Update)
+
+| 機型類型 | 輪數 | 說明 |
+|---------|------|------|
+| **現有機型** | 3 輪 | R1(URL) + R2(Search) + R3(Search) |
+| **新增機型** | 4 輪 | R1(Search) + R2(Search) + R3(Search) + R4(Knowledge) |
+
+---
+
+## ⚠️ 系統核心規則 (CRITICAL SYSTEM RULES)
+
+所有的 Prompt 與程式邏輯必須嚴格遵守以下規則，違者必修：
+
+### 1. 語言規範 (Strict Language Policy)
+- **AI 輸出必須是英文 (ENGLISH ONLY)。**
+- 若來源資料是德文/中文，AI **必須**翻譯成英文。
+- **禁止**輸出任何非英文內容（如 "Zug-Kapp- und Gehrungssäge"）。
+- Prompt 中已強制加入：
+  > `LANGUAGE INSTRUCTION: OUTPUT MUST BE IN ENGLISH. YOU MUST TRANSLATE ANY NON-ENGLISH DATA TO ENGLISH.`
+
+### 2. 資料格式 (Strict Data Schema)
+- AI 必須嚴格遵守 `STRICT DATA SCHEMA` 中定義的選項。
+- **禁止**創造新選項。例如 Type 只能是 `1.Benchtop`, `2.Floor`, `3.Multi Function`。
+- 違反 Schema 的輸出將導致投票失敗或資料錯誤。
+
+### 3. R1 主導權 (R1 Dominance)
+- **R1 (URL或第一輪搜尋) 權重 = 10 分**。
+- 其他輪次 (R2~R4) 權重 = 1 分。
+- **意義**：只要 R1 有找到資料，它基本上就是絕對贏家，除非被「只填空格」規則擋下。
+
+### 4. 只填空格模式 (Only Fill Empty Mode)
+- UI 新增選項 `[ ] Only Fill Empty`。
+- **規則**：若勾選此項，且原始欄位 **已有值** (非空)，則 AI **絕對禁止覆蓋**，必須保留原值。
+- 此規則優先級高於 R1 主導權。
+
+### 5. 快取強制更新 (Cache Busting)
+- 程式載入 Prompt 時，**必須**加上時間戳參數 `?t=${Date.now()}`。
+- **目的**：強制瀏覽器忽略快取，每次都從 GitHub 下載最新版 AI 指令。
+
+### 6. 立即部署與驗證原則 (Deployment & Verification - CRITICAL)
+- **Prompt 修改完後，必須「立即」上傳 (Push) 到 GitHub。**
+- **必須驗證上傳成功**：
+    - 不只是輸入 `git push`，還要檢查 Terminal 回傳值。
+    - **必須看到** `Everything up-to-date` 或 `Look at this commit hash`。
+    - **嚴禁**忽略錯誤訊息 (如 `rejected`, `fetch first`)。
+- **SOP**: 
+    1. 修改 Code 
+    2. `git add <指定檔案>` (嚴禁使用 `git add .`)
+    3. `git push` 
+    4. **確認 Exit Code 為 0 且無 Error** 
+    5. 通知使用者
+
+### 7. 潔淨上傳原則 (Clean Repository Policy)
+- **嚴禁上傳非程式碼檔案**：Log (.txt), 測試資料 (.csv), 備份檔 (複製.html) 一律禁止上傳。
+- **只能上傳**：`.js` (Prompt), `.html` (主程式), `.md` (說明書)。
+- 若不慎上傳，必須立即使用 `git rm` 刪除並清理 Repo。
+
+---
+
 ## 驗證流程
 
 ```
