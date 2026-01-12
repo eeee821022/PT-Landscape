@@ -1,0 +1,658 @@
+=== AI DATA VALIDATOR FULL LOGS ===
+Date: 2026/1/12 上午1:27:02
+Total Entries: 6
+
+[Record #1] --------------------------------------------------
+Time: 上午1:24:21
+Brand: Einhell (3R Batch 1)
+Round: R1 [URL]
+
+--- PROMPT ---
+URL Mode
+
+--- RESPONSE ---
+{
+  "Update Date": "2026-01-11 NEW",
+  "Image URL": "https://asset.conrad.com/media10/isa/160267/c1/-/de/002336513PI00/Einhell-power-x-change-te-sm-36-210-li-solo-zug-kapp-und-gehrungssaege.jpg?x=300&y=300",
+  "Released Year": null,
+  "Model #": "TE-SM 36/210 Li",
+  "Brand": "Einhell",
+  "Type": "Akku-Zug-Kapp-Gehrungssäge",
+  "Bevel": "Links 45 °",
+  "Slide": "Ja",
+  "Blade Diameter": "210 mm",
+  "Watt": null,
+  "RPM": "3800 min^-1",
+  "Power Supply": "36 V (2x 18V Akku)",
+  "Soft Start": "Ja",
+  "Laser": "Ja",
+  "Others": "LED, Schnittleistung bei 0° / 90°: 310 mm Länge, 65 mm Tiefe",
+  "Price": 199
+}
+
+[Record #2] --------------------------------------------------
+Time: 上午1:24:21
+Brand: Einhell (3R Batch 1)
+Round: R2 [Google]
+
+--- PROMPT ---
+Target Region: DEU
+Market Context: Focus on tool models, certifications, and market-specific standards (e.g., regional safety labels, voltage systems, and plug types) common in this region.
+
+You are a data validation expert for MTS_List2.
+**You have access to Google Search. USE IT to verify and correct specifications.**
+
+Your task is to:
+1. Review the input JSON list of tools.
+2. **Use Google Search to verify ALL specifications** (RPM, Wattage, Blade Diameter, Type, Bevel, Slide, Laser, etc.):
+   - Search for "[Brand] [Model #] specifications" to find official specs
+   - Correct any wrong values based on search results from manufacturer websites or reputable sources
+3. **Research "Released Year"** - If search results are unclear or model is very new (2024-2025), leave EMPTY.
+4. Append any NEWER **Einhell** models of the same class that are missing from the list for the DEU market.
+5. If a value is clearly invalid or missing, you MUST fill it based on Google Search results.
+
+STRICT DATA SCHEMA (You MUST use these exact allowed values):
+
+### NUMERIC FORMATTING RULES (CRITICAL):
+1. **Watt, RPM, Voltage (if numeric)**:
+   - Output **ONLY DIGITS**.
+   - **NO UNITS** (e.g. write "1500", NOT "1500W").
+   - **NO COMMAS** (e.g. write "2500", NOT "2,500").
+   - Decimals are allowed.
+
+2. **Blade Diameter**:
+   - **ALWAYS CONVERT to MM** (Millimeters).
+   - If source is in Inches (e.g. 10", 12"), convert to MM (e.g. 254, 305).
+   - Output **INTEGER ONLY** (No decimals for MM).
+   - Example: 10" -> 254; 7-1/4" -> 184.
+
+- Type (Machine mounting style):
+  * "1.Miter Base" = Benchtop/portable miter saw, sits on a workbench or stand
+  * "2.Floor" = Floor-standing/stationary machine with integrated stand or legs
+  * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
+
+- Bevel (Tilting capability of the blade):
+  * "Single" = Blade tilts to ONE side only (typically left)
+  * "Dual" = Blade tilts to BOTH left AND right sides
+  * "No" = No bevel capability, blade is fixed at 90°
+
+- Slide (Rail/slide mechanism for extended cut width):
+  * "No" = No sliding mechanism, fixed cutting width
+  * "Rail" = Traditional dual-rail sliding system behind the blade
+  * "Side Rail" = Rail system mounted on the side of the saw
+  * "Rail-Front" = Forward-pull rail design, blade slides forward instead of backward, reduces rear clearance space (like Festool Kapex)
+  * "Robust Arm" = Articulating arm system (like Bosch Glide/Axial-Glide)
+
+- Laser (Cut-line indicator system):
+  * "-" = No laser or shadow line system
+  * "Laser" = Single laser line indicator
+  * "Dual laser" = Two parallel laser lines showing kerf width
+  * "Shadow" = LED shadow line system (blade casts shadow on cut line)
+  * "Laser+Shadow" = Has both laser AND shadow line systems
+
+- Power Supply (Format: "Cordless [Voltage]" or leave empty for corded):
+  * Examples: "Cordless 18V", "Cordless 18V2" (dual battery), "Cordless 20V", "Cordless 36V", "Cordless 40V", "Cordless 54V", "Cordless 60V"
+  * For platform systems: "CAS Cordless 18V" (Cordless Alliance System), "FlexVolt 60V", etc.
+  * Leave EMPTY for AC corded tools (do NOT write "AC" or "Corded")
+- Motor Type: "Carbon" (brushed motor), "BLDC" (brushless DC motor)
+
+- Others (Comma-separated list of features, ONLY include features that are CONFIRMED):
+  * "E Brake" = Electric/Electronic Brake - Blade stops in <3 seconds after releasing trigger. MUST have active braking system, NOT just friction/inertia stop.
+  * "Speed Ctrl" = Variable Speed Control - User can adjust RPM (dial, trigger sensitivity, or electronic control). NOT just single/fixed speed.
+  * "Interface" = System Interface - Has proprietary accessory attachment system (e.g., Festool MultiConnect, Makita AWS adapter port)
+  * "IoT" = Smart/Connected features - Bluetooth, WiFi, app connectivity (e.g., DeWalt Tool Connect, Bosch Connected, Milwaukee ONE-KEY)
+  * "VTC" = Vertical Table Clamp - Built-in vertical material clamping system
+  * "SYM Fence" = Symmetrical Fence - Both left and right fence arms are the same length/style
+  * "Dust Extraction" = Dust collection port/system - Has port for connecting to vacuum/dust collector. Almost all modern miter saws have this.
+  * "Soft Start" = Soft Start - Gradual motor acceleration to reduce startup torque/jerk. Common on high-end models.
+  
+  IMPORTANT: 
+  - Do NOT assume "E Brake" just because it's brushless (BLDC). Many BLDC motors stop via regenerative braking which is NOT the same as E Brake.
+  - "E Brake" requires EXPLICIT electric brake feature in specifications.
+  - If unsure, do NOT include the feature.
+
+
+
+IMPORTANT INSTRUCTIONS:
+- Target Brand: **Einhell**
+- Fill empty columns based on Model #.
+- **"Released Year" ACCURACY IS CRITICAL: Only use verified data. Empty is better than wrong.**
+- VERIFY existing values; only change if WRONG.
+- Return a JSON object with:
+   - "corrected": [ ... list of objects with SAME count as input ... ]
+   - "new_items": [ ... list of new model objects ... ]
+
+Output VALID JSON only.
+
+--- RESPONSE ---
+{
+  "corrected": [
+    {
+      "Update Date": "2026-01-11 NEW",
+      "Image URL": "https://asset.conrad.com/media10/isa/160267/c1/-/de/002336513PI00/Einhell-power-x-change-te-sm-36-210-li-solo-zug-kapp-und-gehrungssaege.jpg?x=300&y=300",
+      "Released Year": "2020",
+      "Model #": "TE-SM 36/210 Li",
+      "Brand": "Einhell",
+      "Type": "1.Miter Base",
+      "Bevel": "Single",
+      "Slide": "Rail",
+      "Blade Diameter": "210",
+      "Watt": "144",
+      "RPM": "3800",
+      "Power Supply": "Cordless 18V2",
+      "Soft Start": "Soft Start",
+      "Laser": "Laser",
+      "Others": "Dust Extraction",
+      "Price": 199
+    }
+  ],
+  "new_items": [
+    {
+      "Update Date": "2026-01-11 NEW",
+      "Image URL": "",
+      "Released Year": "",
+      "Model #": "TE-SM 36/10 L Li-Solo",
+      "Brand": "Einhell",
+      "Type": "1.Miter Base",
+      "Bevel": "Single",
+      "Slide": "Rail",
+      "Blade Diameter": "254",
+      "Watt": "",
+      "RPM": "3800",
+      "Power Supply": "Cordless 18V2",
+      "Soft Start": "-",
+      "Laser": "Laser",
+      "Others": "Dust Extraction",
+      "Price": null
+    }
+  ]
+}
+
+[Record #3] --------------------------------------------------
+Time: 上午1:24:21
+Brand: Einhell (3R Batch 1)
+Round: R3 [Google]
+
+--- PROMPT ---
+Target Region: DEU
+Market Context: Focus on tool models, certifications, and market-specific standards (e.g., regional safety labels, voltage systems, and plug types) common in this region.
+
+You are a data validation expert for MTS_List2.
+**You have access to Google Search. USE IT to verify and correct specifications.**
+
+Your task is to:
+1. Review the input JSON list of tools.
+2. **Use Google Search to verify ALL specifications** (RPM, Wattage, Blade Diameter, Type, Bevel, Slide, Laser, etc.):
+   - Search for "[Brand] [Model #] specifications" to find official specs
+   - Correct any wrong values based on search results from manufacturer websites or reputable sources
+3. **Research "Released Year"** - If search results are unclear or model is very new (2024-2025), leave EMPTY.
+4. Append any NEWER **Einhell** models of the same class that are missing from the list for the DEU market.
+5. If a value is clearly invalid or missing, you MUST fill it based on Google Search results.
+
+STRICT DATA SCHEMA (You MUST use these exact allowed values):
+
+### NUMERIC FORMATTING RULES (CRITICAL):
+1. **Watt, RPM, Voltage (if numeric)**:
+   - Output **ONLY DIGITS**.
+   - **NO UNITS** (e.g. write "1500", NOT "1500W").
+   - **NO COMMAS** (e.g. write "2500", NOT "2,500").
+   - Decimals are allowed.
+
+2. **Blade Diameter**:
+   - **ALWAYS CONVERT to MM** (Millimeters).
+   - If source is in Inches (e.g. 10", 12"), convert to MM (e.g. 254, 305).
+   - Output **INTEGER ONLY** (No decimals for MM).
+   - Example: 10" -> 254; 7-1/4" -> 184.
+
+- Type (Machine mounting style):
+  * "1.Miter Base" = Benchtop/portable miter saw, sits on a workbench or stand
+  * "2.Floor" = Floor-standing/stationary machine with integrated stand or legs
+  * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
+
+- Bevel (Tilting capability of the blade):
+  * "Single" = Blade tilts to ONE side only (typically left)
+  * "Dual" = Blade tilts to BOTH left AND right sides
+  * "No" = No bevel capability, blade is fixed at 90°
+
+- Slide (Rail/slide mechanism for extended cut width):
+  * "No" = No sliding mechanism, fixed cutting width
+  * "Rail" = Traditional dual-rail sliding system behind the blade
+  * "Side Rail" = Rail system mounted on the side of the saw
+  * "Rail-Front" = Forward-pull rail design, blade slides forward instead of backward, reduces rear clearance space (like Festool Kapex)
+  * "Robust Arm" = Articulating arm system (like Bosch Glide/Axial-Glide)
+
+- Laser (Cut-line indicator system):
+  * "-" = No laser or shadow line system
+  * "Laser" = Single laser line indicator
+  * "Dual laser" = Two parallel laser lines showing kerf width
+  * "Shadow" = LED shadow line system (blade casts shadow on cut line)
+  * "Laser+Shadow" = Has both laser AND shadow line systems
+
+- Power Supply (Format: "Cordless [Voltage]" or leave empty for corded):
+  * Examples: "Cordless 18V", "Cordless 18V2" (dual battery), "Cordless 20V", "Cordless 36V", "Cordless 40V", "Cordless 54V", "Cordless 60V"
+  * For platform systems: "CAS Cordless 18V" (Cordless Alliance System), "FlexVolt 60V", etc.
+  * Leave EMPTY for AC corded tools (do NOT write "AC" or "Corded")
+- Motor Type: "Carbon" (brushed motor), "BLDC" (brushless DC motor)
+
+- Others (Comma-separated list of features, ONLY include features that are CONFIRMED):
+  * "E Brake" = Electric/Electronic Brake - Blade stops in <3 seconds after releasing trigger. MUST have active braking system, NOT just friction/inertia stop.
+  * "Speed Ctrl" = Variable Speed Control - User can adjust RPM (dial, trigger sensitivity, or electronic control). NOT just single/fixed speed.
+  * "Interface" = System Interface - Has proprietary accessory attachment system (e.g., Festool MultiConnect, Makita AWS adapter port)
+  * "IoT" = Smart/Connected features - Bluetooth, WiFi, app connectivity (e.g., DeWalt Tool Connect, Bosch Connected, Milwaukee ONE-KEY)
+  * "VTC" = Vertical Table Clamp - Built-in vertical material clamping system
+  * "SYM Fence" = Symmetrical Fence - Both left and right fence arms are the same length/style
+  * "Dust Extraction" = Dust collection port/system - Has port for connecting to vacuum/dust collector. Almost all modern miter saws have this.
+  * "Soft Start" = Soft Start - Gradual motor acceleration to reduce startup torque/jerk. Common on high-end models.
+  
+  IMPORTANT: 
+  - Do NOT assume "E Brake" just because it's brushless (BLDC). Many BLDC motors stop via regenerative braking which is NOT the same as E Brake.
+  - "E Brake" requires EXPLICIT electric brake feature in specifications.
+  - If unsure, do NOT include the feature.
+
+
+
+IMPORTANT INSTRUCTIONS:
+- Target Brand: **Einhell**
+- Fill empty columns based on Model #.
+- **"Released Year" ACCURACY IS CRITICAL: Only use verified data. Empty is better than wrong.**
+- VERIFY existing values; only change if WRONG.
+- Return a JSON object with:
+   - "corrected": [ ... list of objects with SAME count as input ... ]
+   - "new_items": [ ... list of new model objects ... ]
+
+Output VALID JSON only.
+
+--- RESPONSE ---
+{
+  "corrected": [
+    {
+      "Update Date": "2026-01-11 NEW",
+      "Image URL": "https://asset.conrad.com/media10/isa/160267/c1/-/de/002336513PI00/Einhell-power-x-change-te-sm-36-210-li-solo-zug-kapp-und-gehrungssaege.jpg?x=300&y=300",
+      "Released Year": "",
+      "Model #": "TE-SM 36/210 Li",
+      "Brand": "Einhell",
+      "Type": "1.Miter Base",
+      "Bevel": "Single",
+      "Slide": "Rail",
+      "Blade Diameter": 210,
+      "Watt": null,
+      "RPM": 3800,
+      "Power Supply": "Cordless 36V",
+      "Soft Start": null,
+      "Laser": "Laser",
+      "Others": "Dust Extraction, E Brake",
+      "Price": 199,
+      "Motor Type": null
+    }
+  ],
+  "new_items": [
+    {
+      "Update Date": "2026-01-11 NEW",
+      "Image URL": "",
+      "Released Year": "",
+      "Model #": "TE-SM 36/10 L Li",
+      "Brand": "Einhell",
+      "Type": "1.Miter Base",
+      "Bevel": "Single",
+      "Slide": "Rail",
+      "Blade Diameter": 254,
+      "Watt": null,
+      "RPM": 3800,
+      "Power Supply": "Cordless 36V",
+      "Soft Start": "Soft Start",
+      "Laser": "Laser",
+      "Others": "Dust Extraction, Soft Start",
+      "Price": null,
+      "Motor Type": null
+    }
+  ]
+}
+
+[Record #4] --------------------------------------------------
+Time: 上午1:25:02
+Brand: Festool (3R Batch 1)
+Round: R1 [URL]
+
+--- PROMPT ---
+URL Mode
+
+--- RESPONSE ---
+[
+  {
+    "Update Date": "2026-01-11 NEW",
+    "Image URL": "https://media.cdn.festool.io/productmedia/Images/jpg_large/c7686622-4951-11e8-80ea-005056b31774_1600_1200.webp",
+    "Released Year": "",
+    "Model #": "KS 120 REB",
+    "Brand": "Festool",
+    "Type": "Kapp-Zugsäge",
+    "Bevel": "Gehrungswinkel: 50/60 Grad (links/rechts)",
+    "Slide": "Zweifach-Säulenführung",
+    "Blade Diameter": "260 mm",
+    "Watt": "1600 W",
+    "RPM": "1400-3400 min⁻¹",
+    "Power Supply": "Kabelgebunden",
+    "Soft Start": "Ja (Sanftanlauf)",
+    "Laser": "Ja (Doppellinien-Laser)",
+    "Others": "Gewicht: 23,1 kg; Anschluss Staubabsaugung Ø: 27/36 mm",
+    "_productUrl": "https://www.Festool.de/produkte/saegen/kapp-zugsaegen/576663---ks-120-reb-set-mft",
+    "_platform": "Festool"
+  },
+  {
+    "Update Date": "2026-01-11 NEW",
+    "Image URL": "https://cdn02.plentymarkets.com/qddd911h1zyd/item/images/132502/full/down-hs-ksc60eb50Iplus-577665-p-01a.jpg",
+    "Released Year": "",
+    "Model #": "KSC 60 EB",
+    "Brand": "Festool",
+    "Type": "Akku-Kapp-Zugsäge",
+    "Bevel": "Neigungswinkel 47/46 Grad; Gehrungswinkel 60/60 Grad",
+    "Slide": "Zweifach gelagerte Doppelsäulenführung",
+    "Blade Diameter": "216 mm",
+    "Watt": null,
+    "RPM": "1300 - 1800/3500 min⁻¹",
+    "Power Supply": "Akkubetrieben (2 x 18 V)",
+    "Soft Start": "Ja (Sanftanlauf)",
+    "Laser": "Ja (Doppellinien-Laser)",
+    "Others": "Gewicht: 17,30 kg",
+    "_productUrl": "https://www.gotools.de/marken/Festool/Festool-akku-kapp-zugsaege-ksc-60-eb-5-0-i-plus-kapex_172951_63935",
+    "_platform": "R-GoTools"
+  }
+]
+
+[Record #5] --------------------------------------------------
+Time: 上午1:25:02
+Brand: Festool (3R Batch 1)
+Round: R2 [Google]
+
+--- PROMPT ---
+Target Region: DEU
+Market Context: Focus on tool models, certifications, and market-specific standards (e.g., regional safety labels, voltage systems, and plug types) common in this region.
+
+You are a data validation expert for MTS_List2.
+**You have access to Google Search. USE IT to verify and correct specifications.**
+
+Your task is to:
+1. Review the input JSON list of tools.
+2. **Use Google Search to verify ALL specifications** (RPM, Wattage, Blade Diameter, Type, Bevel, Slide, Laser, etc.):
+   - Search for "[Brand] [Model #] specifications" to find official specs
+   - Correct any wrong values based on search results from manufacturer websites or reputable sources
+3. **Research "Released Year"** - If search results are unclear or model is very new (2024-2025), leave EMPTY.
+4. Append any NEWER **Festool** models of the same class that are missing from the list for the DEU market.
+5. If a value is clearly invalid or missing, you MUST fill it based on Google Search results.
+
+STRICT DATA SCHEMA (You MUST use these exact allowed values):
+
+### NUMERIC FORMATTING RULES (CRITICAL):
+1. **Watt, RPM, Voltage (if numeric)**:
+   - Output **ONLY DIGITS**.
+   - **NO UNITS** (e.g. write "1500", NOT "1500W").
+   - **NO COMMAS** (e.g. write "2500", NOT "2,500").
+   - Decimals are allowed.
+
+2. **Blade Diameter**:
+   - **ALWAYS CONVERT to MM** (Millimeters).
+   - If source is in Inches (e.g. 10", 12"), convert to MM (e.g. 254, 305).
+   - Output **INTEGER ONLY** (No decimals for MM).
+   - Example: 10" -> 254; 7-1/4" -> 184.
+
+- Type (Machine mounting style):
+  * "1.Miter Base" = Benchtop/portable miter saw, sits on a workbench or stand
+  * "2.Floor" = Floor-standing/stationary machine with integrated stand or legs
+  * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
+
+- Bevel (Tilting capability of the blade):
+  * "Single" = Blade tilts to ONE side only (typically left)
+  * "Dual" = Blade tilts to BOTH left AND right sides
+  * "No" = No bevel capability, blade is fixed at 90°
+
+- Slide (Rail/slide mechanism for extended cut width):
+  * "No" = No sliding mechanism, fixed cutting width
+  * "Rail" = Traditional dual-rail sliding system behind the blade
+  * "Side Rail" = Rail system mounted on the side of the saw
+  * "Rail-Front" = Forward-pull rail design, blade slides forward instead of backward, reduces rear clearance space (like Festool Kapex)
+  * "Robust Arm" = Articulating arm system (like Bosch Glide/Axial-Glide)
+
+- Laser (Cut-line indicator system):
+  * "-" = No laser or shadow line system
+  * "Laser" = Single laser line indicator
+  * "Dual laser" = Two parallel laser lines showing kerf width
+  * "Shadow" = LED shadow line system (blade casts shadow on cut line)
+  * "Laser+Shadow" = Has both laser AND shadow line systems
+
+- Power Supply (Format: "Cordless [Voltage]" or leave empty for corded):
+  * Examples: "Cordless 18V", "Cordless 18V2" (dual battery), "Cordless 20V", "Cordless 36V", "Cordless 40V", "Cordless 54V", "Cordless 60V"
+  * For platform systems: "CAS Cordless 18V" (Cordless Alliance System), "FlexVolt 60V", etc.
+  * Leave EMPTY for AC corded tools (do NOT write "AC" or "Corded")
+- Motor Type: "Carbon" (brushed motor), "BLDC" (brushless DC motor)
+
+- Others (Comma-separated list of features, ONLY include features that are CONFIRMED):
+  * "E Brake" = Electric/Electronic Brake - Blade stops in <3 seconds after releasing trigger. MUST have active braking system, NOT just friction/inertia stop.
+  * "Speed Ctrl" = Variable Speed Control - User can adjust RPM (dial, trigger sensitivity, or electronic control). NOT just single/fixed speed.
+  * "Interface" = System Interface - Has proprietary accessory attachment system (e.g., Festool MultiConnect, Makita AWS adapter port)
+  * "IoT" = Smart/Connected features - Bluetooth, WiFi, app connectivity (e.g., DeWalt Tool Connect, Bosch Connected, Milwaukee ONE-KEY)
+  * "VTC" = Vertical Table Clamp - Built-in vertical material clamping system
+  * "SYM Fence" = Symmetrical Fence - Both left and right fence arms are the same length/style
+  * "Dust Extraction" = Dust collection port/system - Has port for connecting to vacuum/dust collector. Almost all modern miter saws have this.
+  * "Soft Start" = Soft Start - Gradual motor acceleration to reduce startup torque/jerk. Common on high-end models.
+  
+  IMPORTANT: 
+  - Do NOT assume "E Brake" just because it's brushless (BLDC). Many BLDC motors stop via regenerative braking which is NOT the same as E Brake.
+  - "E Brake" requires EXPLICIT electric brake feature in specifications.
+  - If unsure, do NOT include the feature.
+
+
+
+IMPORTANT INSTRUCTIONS:
+- Target Brand: **Festool**
+- Fill empty columns based on Model #.
+- **"Released Year" ACCURACY IS CRITICAL: Only use verified data. Empty is better than wrong.**
+- VERIFY existing values; only change if WRONG.
+- Return a JSON object with:
+   - "corrected": [ ... list of objects with SAME count as input ... ]
+   - "new_items": [ ... list of new model objects ... ]
+
+Output VALID JSON only.
+
+--- RESPONSE ---
+{
+  "corrected": [
+    {
+      "Update Date": "2026-01-11 NEW",
+      "Image URL": "https://media.cdn.festool.io/productmedia/Images/jpg_large/c7686622-4951-11e8-80ea-005056b31774_1600_1200.webp",
+      "Released Year": "",
+      "Model #": "KS 120 REB",
+      "Brand": "Festool",
+      "Type": "1.Miter Base",
+      "Bevel": "Dual",
+      "Slide": "Rail-Front",
+      "Blade Diameter": "260",
+      "Watt": "1600",
+      "RPM": "1400",
+      "Power Supply": "",
+      "Soft Start": "Soft Start",
+      "Laser": "Dual laser",
+      "Motor Type": "Carbon",
+      "Others": "E Brake, Speed Ctrl, Dust Extraction, Soft Start, VTC",
+      "Price": 3476.69
+    },
+    {
+      "Update Date": "2026-01-11 NEW",
+      "Image URL": "https://cdn02.plentymarkets.com/qddd911h1zyd/item/images/132502/full/down-hs-ksc60eb50Iplus-577665-p-01a.jpg",
+      "Released Year": "2022",
+      "Model #": "KSC 60 EB",
+      "Brand": "Festool",
+      "Type": "1.Miter Base",
+      "Bevel": "Dual",
+      "Slide": "Rail-Front",
+      "Blade Diameter": "216",
+      "Watt": "",
+      "RPM": "1300",
+      "Power Supply": "Cordless 36V",
+      "Soft Start": "Soft Start",
+      "Laser": "Shadow",
+      "Motor Type": "BLDC",
+      "Others": "E Brake, Speed Ctrl, Dust Extraction, Soft Start, VTC",
+      "Price": 1299.99
+    }
+  ],
+  "new_items": []
+}
+
+[Record #6] --------------------------------------------------
+Time: 上午1:25:02
+Brand: Festool (3R Batch 1)
+Round: R3 [Google]
+
+--- PROMPT ---
+Target Region: DEU
+Market Context: Focus on tool models, certifications, and market-specific standards (e.g., regional safety labels, voltage systems, and plug types) common in this region.
+
+You are a data validation expert for MTS_List2.
+**You have access to Google Search. USE IT to verify and correct specifications.**
+
+Your task is to:
+1. Review the input JSON list of tools.
+2. **Use Google Search to verify ALL specifications** (RPM, Wattage, Blade Diameter, Type, Bevel, Slide, Laser, etc.):
+   - Search for "[Brand] [Model #] specifications" to find official specs
+   - Correct any wrong values based on search results from manufacturer websites or reputable sources
+3. **Research "Released Year"** - If search results are unclear or model is very new (2024-2025), leave EMPTY.
+4. Append any NEWER **Festool** models of the same class that are missing from the list for the DEU market.
+5. If a value is clearly invalid or missing, you MUST fill it based on Google Search results.
+
+STRICT DATA SCHEMA (You MUST use these exact allowed values):
+
+### NUMERIC FORMATTING RULES (CRITICAL):
+1. **Watt, RPM, Voltage (if numeric)**:
+   - Output **ONLY DIGITS**.
+   - **NO UNITS** (e.g. write "1500", NOT "1500W").
+   - **NO COMMAS** (e.g. write "2500", NOT "2,500").
+   - Decimals are allowed.
+
+2. **Blade Diameter**:
+   - **ALWAYS CONVERT to MM** (Millimeters).
+   - If source is in Inches (e.g. 10", 12"), convert to MM (e.g. 254, 305).
+   - Output **INTEGER ONLY** (No decimals for MM).
+   - Example: 10" -> 254; 7-1/4" -> 184.
+
+- Type (Machine mounting style):
+  * "1.Miter Base" = Benchtop/portable miter saw, sits on a workbench or stand
+  * "2.Floor" = Floor-standing/stationary machine with integrated stand or legs
+  * "3.Multi Function" = Combination miter saw and table saw in one unit (flip-over/combi saws)
+
+- Bevel (Tilting capability of the blade):
+  * "Single" = Blade tilts to ONE side only (typically left)
+  * "Dual" = Blade tilts to BOTH left AND right sides
+  * "No" = No bevel capability, blade is fixed at 90°
+
+- Slide (Rail/slide mechanism for extended cut width):
+  * "No" = No sliding mechanism, fixed cutting width
+  * "Rail" = Traditional dual-rail sliding system behind the blade
+  * "Side Rail" = Rail system mounted on the side of the saw
+  * "Rail-Front" = Forward-pull rail design, blade slides forward instead of backward, reduces rear clearance space (like Festool Kapex)
+  * "Robust Arm" = Articulating arm system (like Bosch Glide/Axial-Glide)
+
+- Laser (Cut-line indicator system):
+  * "-" = No laser or shadow line system
+  * "Laser" = Single laser line indicator
+  * "Dual laser" = Two parallel laser lines showing kerf width
+  * "Shadow" = LED shadow line system (blade casts shadow on cut line)
+  * "Laser+Shadow" = Has both laser AND shadow line systems
+
+- Power Supply (Format: "Cordless [Voltage]" or leave empty for corded):
+  * Examples: "Cordless 18V", "Cordless 18V2" (dual battery), "Cordless 20V", "Cordless 36V", "Cordless 40V", "Cordless 54V", "Cordless 60V"
+  * For platform systems: "CAS Cordless 18V" (Cordless Alliance System), "FlexVolt 60V", etc.
+  * Leave EMPTY for AC corded tools (do NOT write "AC" or "Corded")
+- Motor Type: "Carbon" (brushed motor), "BLDC" (brushless DC motor)
+
+- Others (Comma-separated list of features, ONLY include features that are CONFIRMED):
+  * "E Brake" = Electric/Electronic Brake - Blade stops in <3 seconds after releasing trigger. MUST have active braking system, NOT just friction/inertia stop.
+  * "Speed Ctrl" = Variable Speed Control - User can adjust RPM (dial, trigger sensitivity, or electronic control). NOT just single/fixed speed.
+  * "Interface" = System Interface - Has proprietary accessory attachment system (e.g., Festool MultiConnect, Makita AWS adapter port)
+  * "IoT" = Smart/Connected features - Bluetooth, WiFi, app connectivity (e.g., DeWalt Tool Connect, Bosch Connected, Milwaukee ONE-KEY)
+  * "VTC" = Vertical Table Clamp - Built-in vertical material clamping system
+  * "SYM Fence" = Symmetrical Fence - Both left and right fence arms are the same length/style
+  * "Dust Extraction" = Dust collection port/system - Has port for connecting to vacuum/dust collector. Almost all modern miter saws have this.
+  * "Soft Start" = Soft Start - Gradual motor acceleration to reduce startup torque/jerk. Common on high-end models.
+  
+  IMPORTANT: 
+  - Do NOT assume "E Brake" just because it's brushless (BLDC). Many BLDC motors stop via regenerative braking which is NOT the same as E Brake.
+  - "E Brake" requires EXPLICIT electric brake feature in specifications.
+  - If unsure, do NOT include the feature.
+
+
+
+IMPORTANT INSTRUCTIONS:
+- Target Brand: **Festool**
+- Fill empty columns based on Model #.
+- **"Released Year" ACCURACY IS CRITICAL: Only use verified data. Empty is better than wrong.**
+- VERIFY existing values; only change if WRONG.
+- Return a JSON object with:
+   - "corrected": [ ... list of objects with SAME count as input ... ]
+   - "new_items": [ ... list of new model objects ... ]
+
+Output VALID JSON only.
+
+--- RESPONSE ---
+{
+  "corrected": [
+    {
+      "Update Date": "2026-01-11 NEW",
+      "Image URL": "https://media.cdn.festool.io/productmedia/Images/jpg_large/c7686622-4951-11e8-80ea-005056b31774_1600_1200.webp",
+      "Released Year": "2019",
+      "Model #": "KS 120 REB",
+      "Brand": "Festool",
+      "Type": "1.Miter Base",
+      "Bevel": "Dual",
+      "Slide": "Rail-Front",
+      "Blade Diameter": "260",
+      "Watt": "1600",
+      "RPM": "3600",
+      "Power Supply": "",
+      "Soft Start": "Soft Start",
+      "Laser": "Dual laser",
+      "Others": "E Brake, Speed Ctrl, Soft Start, Dust Extraction",
+      "Price": 3476.69,
+      "Motor Type": "Carbon"
+    },
+    {
+      "Update Date": "2026-01-11 NEW",
+      "Image URL": "https://cdn02.plentymarkets.com/qddd911h1zyd/item/images/132502/full/down-hs-ksc60eb50Iplus-577665-p-01a.jpg",
+      "Released Year": "",
+      "Model #": "KSC 60 EB",
+      "Brand": "Festool",
+      "Type": "1.Miter Base",
+      "Bevel": "Dual",
+      "Slide": "Rail-Front",
+      "Blade Diameter": "216",
+      "Watt": "",
+      "RPM": "3500",
+      "Power Supply": "Cordless 18V2",
+      "Soft Start": "Soft Start",
+      "Laser": "Dual laser",
+      "Others": "E Brake, Speed Ctrl, Soft Start, Dust Extraction",
+      "Price": 1299.99,
+      "Motor Type": "BLDC"
+    }
+  ],
+  "new_items": [
+    {
+      "Update Date": "2026-01-11 NEW",
+      "Image URL": "https://media.cdn.festool.io/productmedia/Images/jpg_large/916024-4951-11e8-80ea-005056b31774_1600_1200.webp",
+      "Released Year": "",
+      "Model #": "KS 60 E",
+      "Brand": "Festool",
+      "Type": "1.Miter Base",
+      "Bevel": "Dual",
+      "Slide": "Rail-Front",
+      "Blade Diameter": "216",
+      "Watt": "1200",
+      "RPM": "3500",
+      "Power Supply": "",
+      "Soft Start": "Soft Start",
+      "Laser": "Dual laser",
+      "Others": "E Brake, Speed Ctrl, Soft Start, Dust Extraction",
+      "Price": 1199.99,
+      "Motor Type": "Carbon"
+    }
+  ]
+}
+

@@ -12,6 +12,10 @@ Market Context: Focus on tool models, certifications, and market-specific standa
 You are a data validation expert for ${type}.
 **You have access to Google Search. USE IT to verify and correct specifications.**
 
+**LANGUAGE INSTRUCTION: OUTPUT MUST BE IN ENGLISH.**
+**If the Google Search results are in another language (e.g. German, Chinese), YOU MUST TRANSLATE the specifications to English.**
+**DO NOT OUTPUT GERMAN OR ANY OTHER LANGUAGE.**
+
 Your task is to:
 1. Review the input JSON list of tools.
 2. **Use Google Search to verify ALL specifications** (RPM, Wattage, Blade Diameter, Type, Bevel, Slide, Laser, etc.):
@@ -99,6 +103,9 @@ Market Context: Focus on tool models, certifications, and market-specific standa
 You are a data validation expert for ${type}.
 **Use your built-in knowledge to verify and correct specifications. Do NOT make up values you are unsure about.**
 
+**LANGUAGE INSTRUCTION: OUTPUT MUST BE IN ENGLISH.**
+**YOU MUST TRANSLATE ANY NON-ENGLISH DATA TO ENGLISH.**
+
 Your task is to:
 1. Review the input JSON list of tools.
 2. **Use your training data knowledge to verify specifications** (RPM, Wattage, Blade Diameter, Type, Bevel, Slide, Laser, etc.):
@@ -177,6 +184,9 @@ Output VALID JSON only.`,
   // URL 模式專用 Prompt (造訪每筆資料的 Product URL 抓取規格)
   systemPromptTemplateUrl: (type, country) => `Target Region: ${country}
 You are extracting specifications from product pages for ${type} products.
+
+**LANGUAGE INSTRUCTION: OUTPUT MUST BE IN ENGLISH.**
+**If the product page is in another language (e.g. German, Chinese), YOU MUST TRANSLATE the specifications to English.**
 
 **CRITICAL: Each item has a "_productUrl" field. Visit that URL to extract specifications.**
 
