@@ -2789,7 +2789,7 @@
                 }
 
                 if (r['Exclude Update'] === 'Y') continue;
-                const m = (r['Model #'] || '').trim();
+                const m = String(r['Model #'] || '').trim();
                 if (!m) continue;
 
                 // Check for price in dateColumns (MTS format)
