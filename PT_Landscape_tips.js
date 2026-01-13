@@ -26,12 +26,17 @@ window.TIPS_CONFIG = [
     {
         "category": "篩選",
         "color": "bg-blue-500",
-        "text": "想要找特定品牌？直接勾選 Brand (例如 Bosch)，系統會自動幫您把相關的電池平台都選好。"
+        "text": "想要找特定品牌？直接勾選 Brand (例如 Bosch)，系統會只顯示 Bosch 產品 (嚴格篩選)，不會受到其他平台影響。"
     },
     {
         "category": "篩選",
         "color": "bg-blue-500",
-        "text": "想比較不同平台的產品？例如選了 Bosch 之後，再手動把 Atika 勾起來，兩個平台的產品就會一起顯示。"
+        "text": "想要跨品牌比較？勾選 Bosch 後再手動勾選 Atika (Platform)，兩者的產品會同時顯示 (聯集模式)。"
+    },
+    {
+        "category": "分享",
+        "color": "bg-green-500",
+        "text": "發現有趣的數據？目前的篩選狀態會自動同步到網址，直接複製網址傳給同事，他們就能看到一模一樣的畫面！"
     },
     {
         "category": "篩選",
