@@ -3,40 +3,33 @@
 // User-friendly tips for floating loading screen and Help modal.
 
 window.TIPS_CONFIG = [
+    // --- 資料讀取 (Data Loading) ---
     {
-        "category": "視圖",
-        "color": "bg-amber-500",
-        "text": "想要換個角度看數據？試試右上角的「Matrix」模式，用熱力圖快速找出哪個品牌的產品最多。"
+        "category": "資料讀取",
+        "color": "bg-gray-500",
+        "text": "篩選左側箭頭可以收折/展開上面檔案讀取相關區塊，讓畫面更寬敞，專注於數據分析。"
     },
     {
-        "category": "視圖",
-        "color": "bg-amber-500",
-        "text": "圖表太小看不清？使用上方的「Zoom」按鈕，可以自由放大縮小所有圖表。"
+        "category": "資料讀取",
+        "color": "bg-gray-500",
+        "text": "發現資料沒更新？按住 Ctrl+F5 強制重新整理，確保您看到的是最新數據。"
     },
+
+    // --- 篩選 (Filtering) ---
     {
-        "category": "視圖",
-        "color": "bg-amber-500",
-        "text": "想看最便宜的產品？切換到「Lowest」模式，系統會自動幫您過濾出每個價格帶的最低價代表。"
-    },
-    {
-        "category": "視圖",
-        "color": "bg-amber-500",
-        "text": "畫面太亂？試試左上角的「Platform / Brand」切換鈕，可以依照不同維度重新分組排列。"
+        "category": "篩選",
+        "color": "bg-blue-500",
+        "text": "篩選設定完成後，網址會自動記錄當前狀態。您可以直接複製網址儲存這次的篩選設定，下次打開即恢復原狀。"
     },
     {
         "category": "篩選",
         "color": "bg-blue-500",
-        "text": "想要找特定品牌？直接勾選 Brand (例如 Bosch)，系統會只顯示 Bosch 產品 (嚴格篩選)，不會受到其他平台影響。"
+        "text": "想要找特定品牌？直接勾選 Brand (例如 Bosch)，系統會自動勾選所有相關平台，一次顯示該品牌所有產品。"
     },
     {
         "category": "篩選",
         "color": "bg-blue-500",
         "text": "想要跨品牌比較？勾選 Bosch 後再手動勾選 Atika (Platform)，兩者的產品會同時顯示 (聯集模式)。"
-    },
-    {
-        "category": "分享",
-        "color": "bg-green-500",
-        "text": "發現有趣的數據？目前的篩選狀態會自動同步到網址，直接複製網址傳給同事，他們就能看到一模一樣的畫面！"
     },
     {
         "category": "篩選",
@@ -53,34 +46,74 @@ window.TIPS_CONFIG = [
         "color": "bg-blue-500",
         "text": "找不到特定型號？在 Model # 欄位輸入關鍵字，立刻就能搜出來。"
     },
+
+    // --- 通用顯示 (General Display) ---
     {
-        "category": "互動",
+        "category": "通用顯示",
+        "color": "bg-green-500",
+        "text": "圖表太小看不清？使用上方的「Zoom」按鈕，可以自由放大縮小所有圖表。"
+    },
+    {
+        "category": "通用顯示",
+        "color": "bg-green-500",
+        "text": "需要報告素材？點擊 PDF Export，將當前的精美圖表直接匯出成文件。"
+    },
+    {
+        "category": "通用顯示",
+        "color": "bg-green-500",
+        "text": "發現有趣的數據？目前的篩選狀態會自動同步到網址，與同事分享連結，他們就能看到一模一樣的畫面！"
+    },
+
+    // --- 地圖顯示 (Landscape) ---
+    {
+        "category": "地圖顯示",
+        "color": "bg-emerald-500",
+        "text": "在 Landscape 模式上方，您可以勾選 Spec、Features 或 Logo 顯示選項，自由控制產品卡片要呈現的詳細程度。"
+    },
+    {
+        "category": "地圖顯示",
+        "color": "bg-emerald-500",
+        "text": "想看最便宜的產品？切換到「Lowest」模式，系統會自動在每個價格帶中只保留最低價代表。"
+    },
+    {
+        "category": "地圖顯示",
         "color": "bg-emerald-500",
         "text": "想知道細節？點擊任何一張產品卡片，可以看到完整的規格表和歷史價格走勢。"
     },
     {
-        "category": "互動",
+        "category": "地圖顯示",
         "color": "bg-emerald-500",
         "text": "表格裡的紅色直線是什麼？那是每 €50 的分隔線，幫您快速判斷產品的價格定位。"
     },
+
+    // --- 散佈圖顯示 (Scatter) ---
     {
-        "category": "AI",
+        "category": "散佈圖顯示",
+        "color": "bg-orange-500",
+        "text": "切換至 Scatter 模式，可以觀察價格與規格(如轉速、功率)的分布關係，快速找出高規低價的 CP 值產品。"
+    },
+
+    // --- 矩陣顯示 (Matrix) ---
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "想要宏觀分析？切換右上角的「Matrix」模式，用熱力圖快速找出哪個品牌在特定價格帶的產品最多。"
+    },
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "想換個分析維度？試試左上角的「Row / Column」切換鈕，可以依照不同屬性重組矩陣。"
+    },
+
+    // --- AI助手 (AI) ---
+    {
+        "category": "AI助手",
         "color": "bg-purple-500",
         "text": "有問題懶得找？點擊右下角的紫色按鈕，問問 AI 助理「哪個品牌最划算？」。"
     },
     {
-        "category": "AI",
+        "category": "AI助手",
         "color": "bg-purple-500",
         "text": "想了解更多玩法？點開 AI 面板，選擇「操作詢問」，AI 會教您怎麼使用此工具。"
-    },
-    {
-        "category": "系統",
-        "color": "bg-gray-500",
-        "text": "需要報告素材？點擊 PDF Export，將當前的精美圖表直接匯出成文件。"
-    },
-    {
-        "category": "系統",
-        "color": "bg-gray-500",
-        "text": "發現資料沒更新？按住 Ctrl+F5 強制重新整理，確保您看到的是最新數據。"
     }
 ];
