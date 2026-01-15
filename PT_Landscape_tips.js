@@ -92,6 +92,21 @@ window.TIPS_CONFIG = [
         "color": "bg-orange-500",
         "text": "切換至 Scatter 模式，可以觀察價格與規格(如轉速、功率)的分布關係，快速找出高規低價的 CP 值產品。"
     },
+    {
+        "category": "散佈圖顯示",
+        "color": "bg-orange-500",
+        "text": "想知道哪些產品評論最多？使用「Size」下拉選單選擇「Comments」，評論越多的產品點越大！"
+    },
+    {
+        "category": "散佈圖顯示",
+        "color": "bg-orange-500",
+        "text": "想找高評分產品？「Size」選「Score」，★5 的產品會顯示成最大的點，方便一眼辨識。"
+    },
+    {
+        "category": "散佈圖顯示",
+        "color": "bg-orange-500",
+        "text": "想看哪個型號跨最多平台銷售？「Size」選「Model Count」，跨平台越多的型號點越大！"
+    },
 
     // --- 矩陣顯示 (Matrix) ---
     {
@@ -103,6 +118,21 @@ window.TIPS_CONFIG = [
         "category": "矩陣顯示",
         "color": "bg-amber-500",
         "text": "想換個分析維度？試試左上角的「Row / Column」切換鈕，可以依照不同屬性重組矩陣。"
+    },
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "「Compare」選項可切換色階範圍：Row 看每行最強區間，Column 比較同欄競爭，Global 看全局絕對值。"
+    },
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "「Data」選項可切換數據類型：Count 看筆數、Comments 看評論總數、Score 看平均評分、Model Count 看獨立型號數。"
+    },
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "Count vs Model Count 差異：Count 計算所有 listing 數量，Model Count 只計算不重複的型號，避免同型號多次上架被重複計算。"
     },
 
     // --- AI助手 (AI) ---
