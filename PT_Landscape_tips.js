@@ -134,6 +134,38 @@ window.TIPS_CONFIG = [
         "color": "bg-amber-500",
         "text": "Count vs Model Count 差異：Count 計算所有 listing 數量，Model Count 只計算不重複的型號，避免同型號多次上架被重複計算。"
     },
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "想評估紅海競爭？選擇「Competition Index」，數值代表「平均每筆產品的評論數」。數值越高，代表該區間的產品普遍累積了大量評論，競爭越激烈。"
+    },
+
+    // --- 策略觀察 (Strategic Observation) ---
+    {
+        "category": "策略觀察",
+        "color": "bg-rose-500",
+        "text": "【觀察規格分布】切換至 Scatter 模式 → Y 軸選擇規格 (如 Watt) → 觀察圖面上點的疏密分布，可看出各規格區間的產品集中程度。"
+    },
+    {
+        "category": "策略觀察",
+        "color": "bg-rose-500",
+        "text": "【觀察數量分布】切換至 Matrix 模式 → Data 選擇「Count」→ 顏色越深的格子代表該品牌在該價位帶的產品數量越多；反之顏色越淺代表數量越少。"
+    },
+    {
+        "category": "策略觀察",
+        "color": "bg-rose-500",
+        "text": "【觀察評論熱度】切換至 Matrix 模式 → Data 選擇「Competition Index」→ 顏色越深紅代表該區間產品的平均評論數越高；顏色越淺代表平均評論數越低。"
+    },
+    {
+        "category": "策略觀察",
+        "color": "bg-rose-500",
+        "text": "【品牌占比比較】切換至 Matrix 模式 → Compare 選擇「Column」→ 縱向觀察同一價格欄位，可直接對比各品牌在此價格帶的數據深淺差異。"
+    },
+    {
+        "category": "策略觀察",
+        "color": "bg-rose-500",
+        "text": "【高低價位檢視】切換至 Landscape 模式 → 勾選上方「Lowest」→ 可過濾掉重複定價，僅顯示每個品牌在各價格區間的最低價代表產品。"
+    },
 
     // --- AI助手 (AI) ---
     {
