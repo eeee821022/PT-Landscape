@@ -51,7 +51,7 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
   * "No" = No bevel capability, blade is fixed at 90°
 
 - Slide (Rail/slide mechanism for extended cut width):
-  * "No" = No sliding mechanism, fixed cutting width
+  * "Compound" = No sliding mechanism, fixed cutting width
   * "Rail" = Traditional dual-rail sliding system behind the blade
   * "Side Rail" = Rail system mounted on the side of the saw
   * "Rail-Front" = Forward-pull rail design, blade slides forward instead of backward, reduces rear clearance space (like Festool Kapex)
@@ -142,7 +142,7 @@ STRICT DATA SCHEMA (You MUST use these exact allowed values):
   * "No" = No bevel capability, blade is fixed at 90°
 
 - Slide (Rail/slide mechanism for extended cut width):
-  * "No" = No sliding mechanism, fixed cutting width
+  * "Compound" = No sliding mechanism, fixed cutting width
   * "Rail" = Traditional dual-rail sliding system behind the blade
   * "Side Rail" = Rail system mounted on the side of the saw
   * "Rail-Front" = Forward-pull rail design (like Festool Kapex)
@@ -213,7 +213,7 @@ STRICT DATA SCHEMA (You MUST use EXACTLY these allowed values):
   * "No" = No bevel capability
 
 - Slide (Rail/slide mechanism):
-  * "No" = No sliding mechanism
+  * "Compound" = No sliding mechanism
   * "Rail" = Traditional dual-rail sliding system behind the blade
   * "Side Rail" = Rail system mounted on the side
   * "Rail-Front" = Forward-pull rail design (like Festool Kapex)
