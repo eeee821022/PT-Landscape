@@ -1,1 +1,181 @@
-var a0J=a0b;(function(a,b){var I=a0b,c=a();while(!![]){try{var d=parseInt(I(0x1e7))/0x1+-parseInt(I(0x181))/0x2+parseInt(I(0x1cd))/0x3*(parseInt(I(0x1cc))/0x4)+-parseInt(I(0x189))/0x5*(-parseInt(I(0x1f5))/0x6)+parseInt(I(0x1ae))/0x7*(parseInt(I(0x200))/0x8)+-parseInt(I(0x1e6))/0x9*(-parseInt(I(0x1b8))/0xa)+-parseInt(I(0x164))/0xb*(parseInt(I(0x1a7))/0xc);if(d===b)break;else c['push'](c['shift']());}catch(e){c['push'](c['shift']());}}}(a0a,0x539c3));var a0c={};a0c[a0J(0x1fd)]=a0J(0x1f2),a0c['color']=a0J(0x1a4)+'0',a0c['text']=a0J(0x1eb)+'/展開上面檔案讀取相'+a0J(0x16a)+'，專注於數據分析。';var a0d={};a0d[a0J(0x1fd)]=a0J(0x1f2),a0d[a0J(0x166)]=a0J(0x1a4)+'0',a0d[a0J(0x192)]=a0J(0x1f0)+'\x20Ctrl+F5\x20強'+a0J(0x171)+a0J(0x180);var a0e={};a0e[a0J(0x1fd)]='篩選',a0e[a0J(0x166)]=a0J(0x190)+'0',a0e['text']=a0J(0x1c4)+a0J(0x1fc)+a0J(0x1a5)+a0J(0x182)+'次打開即恢復原狀。';var a0f={};a0f[a0J(0x1fd)]='篩選',a0f['color']='bg-blue-50'+'0',a0f[a0J(0x192)]=a0J(0x185)+a0J(0x1dc)+a0J(0x17c)+a0J(0x187)+'關平台，一次顯示該品'+a0J(0x1ed);var a0g={};a0g['category']='篩選',a0g[a0J(0x166)]='bg-blue-50'+'0',a0g[a0J(0x192)]='想要跨品牌比較？勾選'+a0J(0x18a)+a0J(0x186)+a0J(0x179)+a0J(0x1e5)+'示\x20(聯集模式)。';var a0h={};a0h[a0J(0x1fd)]='篩選',a0h['color']=a0J(0x190)+'0',a0h[a0J(0x192)]=a0J(0x1d9)+a0J(0x1b5)+a0J(0x1f7);var a0i={};a0i[a0J(0x1fd)]='篩選',a0i[a0J(0x166)]=a0J(0x190)+'0',a0i[a0J(0x192)]=a0J(0x1c3)+a0J(0x1e8)+'e\x20輸入您的預算範圍'+a0J(0x1f9)+a0J(0x188);var a0j={};a0j[a0J(0x1fd)]='篩選',a0j[a0J(0x166)]=a0J(0x190)+'0',a0j[a0J(0x192)]=a0J(0x1f8)+a0J(0x1c0)+a0J(0x1f3)+a0J(0x176);var a0k={};a0k[a0J(0x1fd)]=a0J(0x1d0),a0k[a0J(0x166)]=a0J(0x1d5)+'00',a0k['text']='圖表太小看不清？使用'+a0J(0x1b7)+a0J(0x18b)+a0J(0x1ff);var a0l={};a0l[a0J(0x1fd)]=a0J(0x1d0),a0l[a0J(0x166)]=a0J(0x1d5)+'00',a0l['text']=a0J(0x1fa)+a0J(0x172)+a0J(0x1ab)+a0J(0x17a);var a0m={};a0m[a0J(0x1fd)]=a0J(0x1d0),a0m[a0J(0x166)]=a0J(0x1d5)+'00',a0m[a0J(0x192)]=a0J(0x201)+a0J(0x195)+a0J(0x199)+a0J(0x173)+a0J(0x1a8);var a0n={};a0n['category']=a0J(0x1fe),a0n['color']=a0J(0x1c2)+a0J(0x203),a0n[a0J(0x192)]=a0J(0x174)+a0J(0x16e)+a0J(0x183)+a0J(0x17e)+a0J(0x1a9)+a0J(0x1e1)+a0J(0x198);var a0o={};function a0a(){var K=['6kAp5Qc85y2a6zAt55Qe55sI5zob6zUg5lIT56Il','5l6l5AAciejVC2nOkE+8Ja','6AgV56s65OIq5PYa5AsN55Qe6BUE77Ym5PA55l6/','yxr1CMvZioAiLIbm','6BQ877YF6ykJ5PIV5Q+piokcRduWia','5yIW55Qe5PIV5PYa5PAW5Pw45PoA44cc','ode0nZG2vw5cuwXi','5A2y6ycz5QYH55Qe56+P6yg46kIT5A6A77Ym5lIl','5yU+6yg4ifnWzwpJGifgzq','5OoZ55Yl5PYa5l6/5A6C55Qe55sI5zob77YF5yIh','5OoZ6kAb5OM+54M55A6A5zob54Mm77YF55U05O6L','5yUv5yU+6yg4ief0AwTHia','57o757wX5PYd6iEQ5yUv5yU+6yg45OMa5PYj55U4','5yUv6zQX6jEp44cc','mZvZCMnvCxC','iejVC2nOiow+JowgJEAjIW','6yIv77Ym5y+V5lUL6iEQ55sX5Ps+5AsN57IU5Bcp','5yo55Qc86lwW5yUI44cc','5yo55lUJ6kgO44cc','iow3RUEvSo+8MKnVDw50ia','5Pw46yEp6lAk5AsA77YB5y+n5lMl6Agp6iMY6lAk','yMCTyMX1zs01ma','5zob54Mm5zYO6kMY5yo55l2n5BI255Qe55sI5zob','Dgv4Da','6lAk6AUy77YB6Agp6iMY6lAk5RE65lUJ6kgO5BMZ','BMCG5Pw46yEp77Ymtw9Kzq','55Qe56+P6yg454Ua5Owl5PYd6iEQ5yUv5zcm5Q2L','44cmrgf0yEoaJEMbUoMGHEwpR+wiHW','5Pon5l2C6kMI5zwp44cn77YmquKG5PYd','55Qe6kMZ57sW56Il5BQM44cc','5yIW57AY5z2a77Ym6iIh5zcm5lQl5yIg5lQR6ycJ','6AUy77Ym5lUJ6kgO6kMY5y2a6zAt55Qe55sI5zob','yMCTyw1IzxiTnq','5RE65lUJ6kgO5Pw46yEp6lAk5Bcr44cc','44cbu2nVCMuG55Yl5BMZ5z2h','5Poh44cmq29TCgv0Axq','6kgO5Qc86koH55Qe57sf6iMY55U057EA5PIV5lUa','5PoA5REX5RE65BEU55wW44cc','44cq6kEa5A+F6kMv6kUw54AX5BQM44cr5yIh5O+B','5y+W6yQ35zsU77YF44cmu2L6zEoaJq','BUoaJEkgKIdNUlhLKjhOP4dLR5/LKiZKUia','yMCTz3jHEs01ma','5OkO5y+V5lUL55U05O6L6ksh6ko957AY5z2a5ysY','5PYj5zwp6Agm5OE25B6x5OM+77YF6BUE5Pok5y+Z','mZztDvzKCgK','5lIa5QIJ55Qe55wR6z2I77Yb','B2DVioMHR+EKUUMbUoMGHE+8JoIhQG','5AsA55Qe55sI5zob6BUE6lAk5AsN77Yb','77Ym5Bch55w25yMn55Qe57k+576o5zYw6kgO55U0','iowaVoEuOUwtGEoaGG','5PwJ5l2i5zYw6AgV56s6','mte5wNLWuvDw','5QIH5BYpiokgKIbzioI7UoMbUoAtHW','6kIi566x5OMa5PYjigXPC3rP','BcbdB3vUDcdLJ6ROQiG','5Poh44cmq291BNtJGi3IHPiG','5Qc86iIh6kAp5Qc8kowMGUI9IEMaN+oaGEwkNW','55+P6zMJ6AgV56s6','5lIl44cm5RIf6zMK44cn5OYj6yIv77Ym6AAS5lIk','5OoZ5O+B5ycl5yIg5P6q57AT5BQM77YF6kMM6kMM','5lIk5PA555Qe44cmwM9VBEoaJEAmIq','mtaXotyWshzjAKfT','5BYpiokgKIbeyxrHioMbUa','BwvUDhpJGi3VViZOQzxOQ5BOTOO','5BEM5lIk6kEs55Qe44cmuM93ic8','5Pw45yc85lUJ6kgO44cm5BMZ5z2h5Q+p562g55sI','5ycl5yo55Qc85BI25lIT5y+Q5l+D55wz5PYa5l2o','5OoZ5OM+6AUy6kMv5yIg55sI5zob77YF44cmuW','44cq5zob54Mm5y2G5Q+u5Q+u6lYd44cr5yIh5O+B','tw9KzwWGiYdMRitKVy0','5zce5zob54Mm5zYO5Q2K5yo55Qc85BI255Qe5Pw4','yMCTzw1LCMfSza','5y+Q6zEC5B+d54M55A6A6Acq566x77YF5zYOia','56+P6yg46kIT5A6A5A6m5OIq5B6m77Ym57AY5z2a','6iEZie1HDhjPEcdMQke','5BYpiokgKIbdB21Wyxi','5OoZ6kAb5A6p6kEa5yIg5P6q77YF5yIh5O+B5y+Z','6kMv5yIg44cbtw9KzwWGqW','44cn5QIH5BYp77Ym55sO54AX5yQB5zYw5B+R6ycF','44cq6kEa5A+F6kAp5Qc85yIg5BId44cr5yIh5O+B','5OoZ5lQg6kEJ5PU05AsA546P5Rov77YF6BUE6zAl','mJmYmdris1f5Dg0','mte0qxrfAM1d','5lIl5OUj6yg45zAU6yg45Poh44cmq29T','5PA355sI5zob55Qe5yo55Qc85A6A5l2n44cc','6ycA55sO6AgV56s6','B3CG55Yl5Q+p6kgm5PYa5BY35y2a6zAt','5Pwz5OkO5Oco6BQ85l2/55sO5Q2K5BEL5yw344cc','zsdPGBJMK4FJGiXdB2X1Bq','5QIH5BYp77Ym57o757wX5PYd6iEQ5yUv5zYO5Q+p','yMCTz3jLzw4Tnq','5zob55Qe6kMv6kUw5Pw444cn44cc5Pw45yc86lAk','44cq6kEa5A+F5Pw46yEp5yIg5BId44cr5yIh5O+B','quNLIQNMIyS','56+P6yg45QkD5lU25AsQ5lQc5lQg77YF5OYj5lIa','5OoZ55+L6ygt5zoQ5lQB55sI5zob6kMv6kUw5PYa','55Qe55Ap5A+g5yIg5BId77Ym5y+V55Yl5yE65zce','5yU+6yg4iejYyw5KicG','5OM+5yE65zoQ5ycl5zob54Mm5zYO54M55A6A5yo5','5lIa55Y86l6O6k2y44cc','iefjiowkQEEqHUoaJowtQUwaI+wtGq','44cmq29TCgfYzEoaJEMbUa','55sX5O6N5yI255sI5zob5y2H54Mh6kAb5zgi54++','5z2h6kMv6kUw5Pw46lAk5l2o44cc','77Ymq29SDw1UioAVLoI8GW','6yEn57we55+P6zMJ44cc','77Ym5ywP6icf55Qe55sI5zob5PYd5zcm5PMc6AgV','mtHPDMzhAKW','odi4ndHVuKjbv04','uhjPy2uGuMfUzW','5OoZ55+L6ygt57sW56+a77YF6BUE5Pok5lU75l2v','56U254IT6lAk5R+a54oi44cc','56+P6yg45BEM5yg0566T6AcT5y+V5lUL5Ps25OQy','5zcm5QYe56U254IT77Ymr2XVyMe','54Mm5OMa5PYj55sI5zob44cc','6kAp5Qc8icJLPOiGv2f0Da','6Agp6iMY6lAk5REX55Qe5Qc85A2q5lUJ6kgO6kMY','55M854++6loh5PAz5Rks5PU05PAW77YF5OYj5l2p','B24Gsw5KzxJJGi3VViW','6loh5PAz6k6a5y+w','6lY45ywL6zEC6y215A2x77Ym56Ul5yI75BcX6io9','zsdMQkhLVi8G4OAsiowlVUMbUos4IG','mZa2ndK4zMHwqNvx','4OAsioMHJ+IjSUI2IUA3SEE0HEs7O+IHQoIPSG','6yke5OkO5lIa5ycl5lM+5REO55Qe55wR6z2I44cc','5OM+5lIn5yIW54M55A6A5z6l6jMF77YF5zYOia','77Ym6lAf5yE656+e5zYn55Qe55sI5zob5PYd6iEQ','6zYa6kAb5AcX5zgk57sG5P2q77YF6BUE5Pokia','ntaW','5PYd6iEQ5yUv6kIy6yYe55w25yMn54Ua5Owl44cc','y2f0zwDVCNK','5zYW5zYw6AgV56s6','5OMa5PYj5zYw6kgO44cc','mta5mJq4vxnlEgzz','55M854++5PYj6lAJ55Qe5Pw45PoA77YF55UU5yMn','5Qc85BI255Qe55sI5zob5PYa5AsA44cc','ltuWma','562w55wL6kEa5A+F','B2rLBcbdB3vUDa','5OoZ55Yl5zoQ5ycl5z6l6jMF6lEO5PYa5AsA5BMZ','BcdNNiVLHAJLSydNTzxLSi3LGlZJGii','5O+B5Pw45PoA6AgE5z6l77YAq291BG','5yIh5O+B6iEZifnJyxr0zq','zEoaJE+8JokyHtuG55Qe55sI5zob5PYd','ntK5nJG3sffmANLY','55Qe5z6l6jMF6BUE6lAk5AsN77Yb','y29SB3i','6kIi566x44cc','CIdMQkhLVi/VViZLJ6/KU6xOP4dLR5/LG7K','5yo55Qc85QYe5l2n77Ym5y+V55U05O6L5Bcn5Q+u','6zEC5y2a5Agk77Ym6k6t55wR6z2I5PU05A+S5PwE','B3vUDcdNNiVNJAJNQ4VLNOVOMz8','55Qe5yIg6zQu57EA77Ym5BMR5OkO5B+R6ycF5yIK','5y2a6zAt55sI5zob55Qe5BMZ5z2h6kMv6kUw5Pw4','zsdMQkhLVi/KUiRMLRNVViZMGQJLJ6/KU6u','yMCTCM9Zzs01ma','5OoZ6kMv5lYW57sf5Rw356U254IT77YF6yg45Poh','5yI26yEn5PAW5Pw055cg77Ym56k65l+D5OkO55Yl','uergiev4Cg9YDa','57wq77Ym5lUw5ycr5BcX6io955Yl5yIW5lIa5QIH','5zYOieXHBMrZy2fW','6iEZifnJyxr0zxiG','5PcC5yE65l6g44cc','6yIv77Ym5y+V5lUL5l6D54wN5lIn5zcm5BgS5OcN','yMCTB3jHBMDLlq','kfbSyxrMB3jTkq','5O6L5yYV5yE65OIq5PAh5lU244cc'];a0a=function(){return K;};return a0a();}function a0b(a,b){a=a-0x162;var c=a0a();var d=c[a];if(a0b['yhUMGU']===undefined){var e=function(i){var j='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';var l='',m='';for(var n=0x0,o,p,q=0x0;p=i['charAt'](q++);~p&&(o=n%0x4?o*0x40+p:p,n++%0x4)?l+=String['fromCharCode'](0xff&o>>(-0x2*n&0x6)):0x0){p=j['indexOf'](p);}for(var r=0x0,s=l['length'];r<s;r++){m+='%'+('00'+l['charCodeAt'](r)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(m);};a0b['vDWlwd']=e,a0b['NTJVRg']={},a0b['yhUMGU']=!![];}var f=c[0x0],g=a+f,h=a0b['NTJVRg'][g];return!h?(d=a0b['vDWlwd'](d),a0b['NTJVRg'][g]=d):d=h,d;}a0o[a0J(0x1fd)]='地圖顯示',a0o[a0J(0x166)]=a0J(0x1c2)+a0J(0x203),a0o[a0J(0x192)]=a0J(0x184)+'換到「Lowest」'+a0J(0x1d4)+a0J(0x1bd)+a0J(0x18d);var a0p={};a0p[a0J(0x1fd)]=a0J(0x1fe),a0p[a0J(0x166)]=a0J(0x1c2)+a0J(0x203),a0p[a0J(0x192)]=a0J(0x1e9)+'一張產品卡片，可以看'+'到完整的規格表和歷史'+a0J(0x18c);var a0q={};a0q[a0J(0x1fd)]=a0J(0x1fe),a0q['color']=a0J(0x1c2)+'-500',a0q[a0J(0x192)]=a0J(0x19f)+a0J(0x17f)+a0J(0x16c)+a0J(0x1cf);var a0r={};a0r[a0J(0x1fd)]=a0J(0x1ad),a0r[a0J(0x166)]='bg-orange-'+a0J(0x1fb),a0r['text']=a0J(0x162)+a0J(0x168)+a0J(0x1b3)+'率)的分布關係，快速'+'找出高規低價的\x20CP'+a0J(0x1ac);var a0s={};a0s['category']=a0J(0x1ad),a0s[a0J(0x166)]=a0J(0x178)+a0J(0x1fb),a0s[a0J(0x192)]=a0J(0x1da)+'多？使用「Size」'+a0J(0x1ce)+a0J(0x1ba)+a0J(0x1aa);var a0t={};a0t[a0J(0x1fd)]=a0J(0x1ad),a0t[a0J(0x166)]=a0J(0x178)+a0J(0x1fb),a0t['text']=a0J(0x1be)+'ize」選「Scor'+a0J(0x163)+a0J(0x17d)+a0J(0x1de);var a0u={};a0u[a0J(0x1fd)]='散佈圖顯示',a0u[a0J(0x166)]=a0J(0x178)+a0J(0x1fb),a0u[a0J(0x192)]=a0J(0x206)+a0J(0x1a2)+'選「Model\x20Co'+'unt」，跨平台越多'+a0J(0x165);var a0v={};a0v['category']=a0J(0x1b4),a0v['color']=a0J(0x19b)+'00',a0v[a0J(0x192)]=a0J(0x1c7)+'上角的「Matrix'+a0J(0x1c9)+a0J(0x1dd)+a0J(0x202);var a0w={};a0w[a0J(0x1fd)]='矩陣顯示',a0w['color']='bg-amber-5'+'00',a0w['text']=a0J(0x1b6)+a0J(0x1bb)+'\x20Column」切換'+a0J(0x177)+a0J(0x1e4);var a0x={};a0x[a0J(0x1fd)]=a0J(0x1b4),a0x[a0J(0x166)]='bg-amber-5'+'00',a0x[a0J(0x192)]=a0J(0x1e0)+'項可切換色階範圍：R'+a0J(0x1d1)+a0J(0x1e3)+a0J(0x1ec)+a0J(0x207);var a0y={};a0y[a0J(0x1fd)]=a0J(0x1b4),a0y[a0J(0x166)]=a0J(0x19b)+'00',a0y[a0J(0x192)]=a0J(0x196)+a0J(0x208)+'t\x20看筆數、Comm'+'ents\x20看評論總數'+a0J(0x19d)+a0J(0x1c8)+a0J(0x16b)+'數。';var a0z={};a0z['category']=a0J(0x1b4),a0z['color']=a0J(0x19b)+'00',a0z[a0J(0x192)]='Count\x20vs\x20M'+a0J(0x205)+a0J(0x18e)+a0J(0x1b0)+a0J(0x194)+a0J(0x1b1)+'算不重複的型號，避免'+'同型號多次上架被重複'+a0J(0x167);var a0A={};a0A[a0J(0x1fd)]=a0J(0x1b4),a0A[a0J(0x166)]='bg-amber-5'+'00',a0A['text']=a0J(0x170)+'「Competiti'+a0J(0x1f1)+a0J(0x1bc)+a0J(0x1d6)+a0J(0x19a)+'普遍累積了大量評論，'+a0J(0x1ea);var a0B={};a0B[a0J(0x1fd)]=a0J(0x204),a0B[a0J(0x166)]=a0J(0x16f)+'0',a0B['text']=a0J(0x1ca)+a0J(0x175)+a0J(0x1af)+a0J(0x1ee)+')\x20→\x20觀察圖面上點'+a0J(0x1db)+a0J(0x17b)+'度。';var a0C={};a0C[a0J(0x1fd)]=a0J(0x204),a0C[a0J(0x166)]=a0J(0x16f)+'0',a0C['text']=a0J(0x1d7)+a0J(0x1c5)+a0J(0x1b9)+a0J(0x1b2)+a0J(0x1ef)+a0J(0x191)+a0J(0x18f)+a0J(0x19c);var a0D={};a0D[a0J(0x1fd)]=a0J(0x204),a0D[a0J(0x166)]=a0J(0x16f)+'0',a0D[a0J(0x192)]=a0J(0x1a1)+a0J(0x1c5)+'式\x20→\x20Data\x20選'+a0J(0x19e)+'ion\x20Index」'+a0J(0x1f6)+a0J(0x16d)+a0J(0x193)+a0J(0x1e2);var a0E={};a0E[a0J(0x1fd)]=a0J(0x204),a0E[a0J(0x166)]=a0J(0x16f)+'0',a0E[a0J(0x192)]=a0J(0x1bf)+a0J(0x1c5)+a0J(0x1c6)+a0J(0x1d3)+a0J(0x1a3)+a0J(0x169)+a0J(0x1c1)+a0J(0x1a0);var a0F={};a0F[a0J(0x1fd)]=a0J(0x204),a0F[a0J(0x166)]='bg-rose-50'+'0',a0F[a0J(0x192)]='【高低價位檢視】切換'+'至\x20Landscap'+a0J(0x1f4)+'方「Lowest」→'+'\x20可過濾掉重複定價，'+'僅顯示每個品牌在各價'+'格區間的最低價代表產'+'品。';var a0G={};a0G[a0J(0x1fd)]=a0J(0x1d8),a0G[a0J(0x166)]='bg-purple-'+a0J(0x1fb),a0G['text']=a0J(0x1a6)+'下角的紫色按鈕，問問'+a0J(0x1df)+'牌最划算？」。';var a0H={};a0H[a0J(0x1fd)]=a0J(0x1d8),a0H[a0J(0x166)]='bg-purple-'+a0J(0x1fb),a0H[a0J(0x192)]=a0J(0x1cb)+'\x20AI\x20面板，選擇「'+a0J(0x197)+a0J(0x1d2),window['TIPS_CONFI'+'G']=[a0c,a0d,a0e,a0f,a0g,a0h,a0i,a0j,a0k,a0l,a0m,a0n,a0o,a0p,a0q,a0r,a0s,a0t,a0u,a0v,a0w,a0x,a0y,a0z,a0A,a0B,a0C,a0D,a0E,a0F,a0G,a0H];
+
+// PT Landscape Tips Configuration
+// User-friendly tips for floating loading screen and Help modal.
+
+window.TIPS_CONFIG = [
+    // --- 資料讀取 (Data Loading) ---
+    {
+        "category": "資料讀取",
+        "color": "bg-gray-500",
+        "text": "篩選左側箭頭可以收折/展開上面檔案讀取相關區塊，讓畫面更寬敞，專注於數據分析。"
+    },
+    {
+        "category": "資料讀取",
+        "color": "bg-gray-500",
+        "text": "發現資料沒更新？按住 Ctrl+F5 強制重新整理，確保您看到的是最新數據。"
+    },
+
+    // --- 篩選 (Filtering) ---
+    {
+        "category": "篩選",
+        "color": "bg-blue-500",
+        "text": "篩選設定完成後，網址會自動記錄當前狀態。您可以直接複製網址儲存這次的篩選設定，下次打開即恢復原狀。"
+    },
+    {
+        "category": "篩選",
+        "color": "bg-blue-500",
+        "text": "想要找特定品牌？直接勾選 Brand (例如 Bosch)，系統會自動勾選所有相關平台，一次顯示該品牌所有產品。"
+    },
+    {
+        "category": "篩選",
+        "color": "bg-blue-500",
+        "text": "想要跨品牌比較？勾選 Bosch 後再手動勾選 Atika (Platform)，兩者的產品會同時顯示 (聯集模式)。"
+    },
+    {
+        "category": "篩選",
+        "color": "bg-blue-500",
+        "text": "篩選條件太亂了？按一下「清除」按鈕，馬上還您一個乾淨的畫面。"
+    },
+    {
+        "category": "篩選",
+        "color": "bg-blue-500",
+        "text": "只關心特定預算？在 Price Range 輸入您的預算範圍，超出範圍的產品會自動隱藏。"
+    },
+    {
+        "category": "篩選",
+        "color": "bg-blue-500",
+        "text": "找不到特定型號？在 Model # 欄位輸入關鍵字，立刻就能搜出來。"
+    },
+
+    // --- 通用顯示 (General Display) ---
+    {
+        "category": "通用顯示",
+        "color": "bg-green-500",
+        "text": "圖表太小看不清？使用上方的「Zoom」按鈕，可以自由放大縮小所有圖表。"
+    },
+    {
+        "category": "通用顯示",
+        "color": "bg-green-500",
+        "text": "需要報告素材？點擊 PDF Export，將當前的精美圖表直接匯出成文件。"
+    },
+    {
+        "category": "通用顯示",
+        "color": "bg-green-500",
+        "text": "發現有趣的數據？目前的篩選狀態會自動同步到網址，與同事分享連結，他們就能看到一模一樣的畫面！"
+    },
+
+    // --- 地圖顯示 (Landscape) ---
+    {
+        "category": "地圖顯示",
+        "color": "bg-emerald-500",
+        "text": "在 Landscape 模式上方，您可以勾選 Spec、Features 或 Logo 顯示選項，自由控制產品卡片要呈現的詳細程度。"
+    },
+    {
+        "category": "地圖顯示",
+        "color": "bg-emerald-500",
+        "text": "想看最便宜的產品？切換到「Lowest」模式，系統會自動在每個價格帶中只保留最低價代表。"
+    },
+    {
+        "category": "地圖顯示",
+        "color": "bg-emerald-500",
+        "text": "想知道細節？點擊任何一張產品卡片，可以看到完整的規格表和歷史價格走勢。"
+    },
+    {
+        "category": "地圖顯示",
+        "color": "bg-emerald-500",
+        "text": "表格裡的紅色直線是什麼？那是每 €50 的分隔線，幫您快速判斷產品的價格定位。"
+    },
+
+    // --- 散佈圖顯示 (Scatter) ---
+    {
+        "category": "散佈圖顯示",
+        "color": "bg-orange-500",
+        "text": "切換至 Scatter 模式，可以觀察價格與規格(如轉速、功率)的分布關係，快速找出高規低價的 CP 值產品。"
+    },
+    {
+        "category": "散佈圖顯示",
+        "color": "bg-orange-500",
+        "text": "想知道哪些產品評論最多？使用「Size」下拉選單選擇「Comments」，評論越多的產品點越大！"
+    },
+    {
+        "category": "散佈圖顯示",
+        "color": "bg-orange-500",
+        "text": "想找高評分產品？「Size」選「Score」，★5 的產品會顯示成最大的點，方便一眼辨識。"
+    },
+    {
+        "category": "散佈圖顯示",
+        "color": "bg-orange-500",
+        "text": "想看哪個型號跨最多平台銷售？「Size」選「Model Count」，跨平台越多的型號點越大！"
+    },
+
+    // --- 矩陣顯示 (Matrix) ---
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "想要宏觀分析？切換右上角的「Matrix」模式，用熱力圖快速找出哪個品牌在特定價格帶的產品最多。"
+    },
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "想換個分析維度？試試左上角的「Row / Column」切換鈕，可以依照不同屬性重組矩陣。"
+    },
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "「Compare」選項可切換色階範圍：Row 看每行最強區間，Column 比較同欄競爭，Global 看全局絕對值。"
+    },
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "「Data」選項可切換數據類型：Count 看筆數、Comments 看評論總數、Score 看平均評分、Model Count 看獨立型號數。"
+    },
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "Count vs Model Count 差異：Count 計算所有 listing 數量，Model Count 只計算不重複的型號，避免同型號多次上架被重複計算。"
+    },
+    {
+        "category": "矩陣顯示",
+        "color": "bg-amber-500",
+        "text": "想評估紅海競爭？選擇「Competition Index」，數值代表「平均每筆產品的評論數」。數值越高，代表該區間的產品普遍累積了大量評論，競爭越激烈。"
+    },
+
+    // --- 策略觀察 (Strategic Observation) ---
+    {
+        "category": "策略觀察",
+        "color": "bg-rose-500",
+        "text": "【觀察規格分布】切換至 Scatter 模式 → Y 軸選擇規格 (如 Watt) → 觀察圖面上點的疏密分布，可看出各規格區間的產品集中程度。"
+    },
+    {
+        "category": "策略觀察",
+        "color": "bg-rose-500",
+        "text": "【觀察數量分布】切換至 Matrix 模式 → Data 選擇「Count」→ 顏色越深的格子代表該品牌在該價位帶的產品數量越多；反之顏色越淺代表數量越少。"
+    },
+    {
+        "category": "策略觀察",
+        "color": "bg-rose-500",
+        "text": "【觀察評論熱度】切換至 Matrix 模式 → Data 選擇「Competition Index」→ 顏色越深紅代表該區間產品的平均評論數越高；顏色越淺代表平均評論數越低。"
+    },
+    {
+        "category": "策略觀察",
+        "color": "bg-rose-500",
+        "text": "【品牌占比比較】切換至 Matrix 模式 → Compare 選擇「Column」→ 縱向觀察同一價格欄位，可直接對比各品牌在此價格帶的數據深淺差異。"
+    },
+    {
+        "category": "策略觀察",
+        "color": "bg-rose-500",
+        "text": "【高低價位檢視】切換至 Landscape 模式 → 勾選上方「Lowest」→ 可過濾掉重複定價，僅顯示每個品牌在各價格區間的最低價代表產品。"
+    },
+
+    // --- AI助手 (AI) ---
+    {
+        "category": "AI助手",
+        "color": "bg-purple-500",
+        "text": "有問題懶得找？點擊右下角的紫色按鈕，問問 AI 助理「哪個品牌最划算？」。"
+    },
+    {
+        "category": "AI助手",
+        "color": "bg-purple-500",
+        "text": "想了解更多玩法？點開 AI 面板，選擇「操作詢問」，AI 會教您怎麼使用此工具。"
+    }
+];
